@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>TherapTube</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <link rel="icon" type="image/png" href="/static/icons/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/static/icons/favicon.svg" />
+    <link rel="shortcut icon" href="/static/icons/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="TherapTube" />
+    <link rel="manifest" href="/static/icons/site.webmanifest" />
+
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="{{ url_for('index') }}">
+                <div class="logo-circle animate-spin">
+                    <span class="logo-text">T</span>
+                </div>
+                <span class="brand-text">TherapTube</span>
+            </a>
+        </div>
+        <input type="checkbox" id="menu-toggle">
+        <label for="menu-toggle" class="menu-icon">&#9776;</label>
+        <div class="nav-links">
+            {% if current_user.role == 'client' %}
+                <a href="{{ url_for('progress') }}">My Progress</a>
+            {% endif %}
+            {% if current_user.role == 'therapist' %}
+                <a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+            {% endif %}
+
+            {% if current_user.is_authenticated %}
+                <span class="user-greet">Hello, {{ current_user.username }}</span>
+                <a href="{{ url_for('recent') }}">Recently Watched</a>
+                {% if current_user.role == 'therapist' %}
+                    <a href="{{ url_for('upload') }}">Upload</a>
+                {% endif %}
+                <a href="{{ url_for('logout') }}">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}">Login</a>
+                <a href="{{ url_for('register') }}">Register</a>
+            {% endif %}
+
+            <form action="{{ url_for('search') }}" method="get" class="search-form">
+                <input type="text" name="q" placeholder="Search…" value="{{ request.args.get('q','') }}">
+                <select name="condition" aria-label="Select a condition">
+                    <option value="">Condition</option>
+                    {% for c in taxonomy.conditions %}
+                        <option value="{{ c }}" {% if request.args.get('condition')==c %}selected{% endif %}>{{ c }}</option>
+                    {% endfor %}
+                </select>
+                <select name="otpf_domain" aria-label="Select an OTPF domain">
+                    <option value="">Domain</option>
+                    {% for d in taxonomy.otpf_domains %}
+                        <option value="{{ d }}" {% if request.args.get('otpf_domain')==d %}selected{% endif %}>{{ d }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer class="footer sticky-footer">
+        <div class="footer-top">
+            <span>&copy; {{ current_year }} TherapTube</span>
+            <span>Version {{ app_version }}</span>
+            <span>Designed by Atom De Legend</span>
+            <span>
+                <a href="mailto:info@example.com">Contact</a> |
+                <a href="{{ url_for('privacy') }}">Privacy</a> |
+                <a href="{{ url_for('terms') }}">Terms</a> |
+                <a href="{{ url_for('cookies') }}">Cookies</a> |
+                <a href="{{ url_for('about') }}">About</a>
+            </span>
+        </div>
+    </footer>
+
+    {% if not request.cookies.get('cookies_accepted') %}
+        <div id="cookie-banner" class="cookie-banner">
+            🍪 We use cookies to improve your experience.
+            <form method="post" action="{{ url_for('accept_cookies') }}" style="display:inline;">
+                <button type="submit">Accept</button>
+            </form>
+            <a href="{{ url_for('cookies') }}">Learn More</a>
+        </div>
+    {% endif %}
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/static/sw.js')
+            .then(reg => console.log('Service Worker registered', reg))
+            .catch(err => console.error('SW failed:', err));
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+{#
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>OT Media Portal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav>
+        <a href="{{ url_for('index') }}">Home</a>
+        {% if current_user.role == 'client' %}
+            <a href="{{ url_for('progress') }}">My Progress</a>
+        {% endif %}
+        {% if current_user.role == 'therapist' %}
+            <a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+        {% endif %}
+        {% if current_user.is_authenticated %}
+            <span>Hello, {{ current_user.username }}</span>
+            <p></p>
+            <a href="{{ url_for('recent') }}">Recently Watched</a>
+            {% if current_user.role == 'therapist' %}
+                <a href="{{ url_for('upload') }}">Upload</a>
+            {% endif %}
+            <a href="{{ url_for('logout') }}">Logout</a>
+        {% else %}
+            <a href="{{ url_for('login') }}">Login</a>
+            <a href="{{ url_for('register') }}">Register</a>
+        {% endif %}
+        <form action="{{ url_for('search') }}" method="get" style="display:inline;">
+            <input type="text" name="q" placeholder="Search…" value="{{ request.args.get('q','') }}">
+            <select name="condition">
+                <option value="">Condition</option>
+                {% for c in taxonomy.conditions %}
+                    <option value="{{ c }}" {% if request.args.get('condition')==c %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+            </select>
+            <select name="otpf_domain">
+                <option value="">Domain</option>
+                {% for d in taxonomy.otpf_domains %}
+                    <option value="{{ d }}" {% if request.args.get('otpf_domain')==d %}selected{% endif %}>{{ d }}</option>
+                {% endfor %}
+            </select>
+        </form>
+    </nav>
+    <div class="container">
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <ul class="flashes">
+              {% for message in messages %}
+                <li>{{ message }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer>
+        <div class="footer-top">
+            <span>&copy; {{ current_year }} OT Media Portal</span>
+            <span>Version 1.0</span>
+            <span>Designed by Atom De Legend</span>
+            <span><a href="mailto:info@example.com">Contact</a> | <a href="#">Privacy</a> | <a href="#">Privacy</a></span>
+        </div>
+    </footer>
+</body>
+</html>
+#}

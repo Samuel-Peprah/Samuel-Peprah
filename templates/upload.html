@@ -1,0 +1,33 @@
+
+{% extends 'base.html' %}
+{% block content %}
+<h2>Upload Media</h2>
+<form method="post" enctype="multipart/form-data">
+    <label>Title <input type="text" name="title" required></label><br>
+    <label>Description <textarea name="description"></textarea></label><br>
+    <label>Category <input type="text" name="category"></label><br>
+    <label>OTPF Domain
+        <select name="otpf_domain" required>
+            {% for d in taxonomy.otpf_domains %}
+                <option value="{{ d }}">{{ d }}</option>
+            {% endfor %}
+        </select>
+    </label><br>
+    <label>FOR
+        <select name="for_name" required>
+            {% for f in taxonomy.fors %}
+                <option value="{{ f }}">{{ f }}</option>
+            {% endfor %}
+        </select>
+    </label><br>
+    <label>Target Condition
+        <select name="target_condition" required>
+            {% for c in taxonomy.conditions %}
+                <option value="{{ c }}">{{ c }}</option>
+            {% endfor %}
+        </select>
+    </label><br>
+    <label>File <input type="file" name="file" accept="video/*,image/*" required></label><br>
+    <button type="submit">Upload</button>
+</form>
+{% endblock %}

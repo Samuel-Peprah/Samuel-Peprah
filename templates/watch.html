@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="watch-container">
+    <div class="main-player">
+        <h1>{{ media.title }}</h1>
+
+        {% if media.filename.lower().endswith(('png','jpg','jpeg','gif')) %}
+            <img src="{{ url_for('static', filename='uploads/' + media.filename) }}" alt="{{ media.title }}">
+        {% else %}
+            <div class="video-wrapper">
+                <video
+                    id="mainVideo"
+                    controls
+                    poster="{{ url_for('static', filename='uploads/thumbs/' + media.thumbnail) }}"
+                    class="responsive-video">
+                    <source src="{{ url_for('stream', fname=media.filename) }}" type="video/mp4">
+                    Your browser does not support HTML5 video.
+                </video>
+            </div>
+        {% endif %}
+
+        {% if current_user.is_authenticated and current_user.role == 'client' %}
+            <form action="{{ url_for('mark_complete', media_id=media.id) }}" method="post" class="mark-complete-form">
+                <button type="submit">✅ Mark as Completed</button>
+            </form>
+        {% endif %}
+    </div>
+
+    {#
+    <div class="video-details">
+        <p>{{ media.description }}</p>
+        <ul>
+            <li><strong>Category:</strong> {{ media.category }}</li>
+            <li><strong>Domain:</strong> {{ media.otpf_domain }}</li>
+            <li><strong>FOR:</strong> {{ media.for_name }}</li>
+            <li><strong>Condition:</strong> {{ media.target_condition }}</li>
+        </ul>
+    </div>
+    #}
+
+    <div class="video-details">
+
+        <!-- ✏️  Description – will be collapsed after 3 lines -->
+        <p class="description" id="desc-{{ media.id }}">
+            {{ media.description }}
+        </p>
+        <button class="desc-toggle" data-target="desc-{{ media.id }}">
+            See more
+        </button>
+
+        <ul>
+            <li><strong>Category:</strong> {{ media.category }}</li>
+            <li><strong>Domain:</strong> {{ media.otpf_domain }}</li>
+            <li><strong>FOR:</strong> {{ media.for_name }}</li>
+            <li><strong>Condition:</strong> {{ media.target_condition }}</li>
+        </ul>
+    </div>
+
+    <aside class="related-videos">
+        <h3>Related Videos</h3>
+        {% for item in related %}
+            <a href="{{ url_for('watch', media_id=item.id) }}" class="related-card">
+                <img src="{{ url_for('static', filename='uploads/thumbs/' + item.thumbnail) }}">
+                <div>
+                    <p class="title">{{ item.title }}</p>
+                    <small>{{ item.target_condition }} · {{ item.otpf_domain }}</small>
+                </div>
+            </a>
+        {% else %}
+            <p>No related videos found.</p>
+        {% endfor %}
+    </aside>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const video = document.getElementById("mainVideo");
+    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      video.setAttribute("playsinline", "");
+      video.setAttribute("webkit-playsinline", ""); // for iOS Safari
+      video.style.maxHeight = "50vh"; // limit height on mobile
+    } else {
+      // Desktop behavior — no need to change anything
+    }
+  });
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    // Find every toggle button
+    document.querySelectorAll(".desc-toggle").forEach(btn => {
+        const para = document.getElementById(btn.dataset.target);
+
+        // Hide the button if the text already fits in 3 lines
+        if (para.scrollHeight <= para.clientHeight + 1) {
+            btn.style.display = "none";
+            return;
+        }
+
+        // Toggle behaviour
+        btn.addEventListener("click", () => {
+            para.classList.toggle("expanded");
+            btn.textContent = para.classList.contains("expanded")
+                              ? "See less"
+                              : "See more";
+        });
+    });
+
+});
+</script>
+{% endblock %}
+
+
+
+
+
+
+
+
+{#
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ media.title }}</h2>
+
+{% if media.filename.lower().endswith(('png','jpg','jpeg','gif')) %}
+    <img src="{{ url_for('static', filename='uploads/' + media.filename) }}" style="max-width:100%;">
+{% else %}
+    <video controls style="max-width:100%;"
+        poster="{{ url_for('static', filename='uploads/thumbs/' + media.thumbnail) }}">
+        <source src="{{ url_for('stream', fname=media.filename) }}" type="video/mp4">
+    </video>
+{% endif %}
+
+{% if current_user.is_authenticated and current_user.role == 'client' %}
+    <form action="{{ url_for('mark_complete', media_id=media.id) }}" method="post" style="margin-top:10px;">
+        <button type="submit">Mark as Completed ✓</button>
+    </form>
+{% endif %}
+
+<p>{{ media.description }}</p>
+<ul>
+    <li><strong>Category:</strong> {{ media.category }}</li>
+    <li><strong>Domain:</strong> {{ media.otpf_domain }}</li>
+    <li><strong>FOR:</strong> {{ media.for_name }}</li>
+    <li><strong>Condition:</strong> {{ media.target_condition }}</li>
+</ul>
+{% endblock %}
+#}
+
+
+
+{#
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ media.title }}</h2>
+{% if media.filename.lower().endswith(('png','jpg','jpeg','gif')) %}
+    <img src="{{ url_for('static', filename='uploads/' + media.filename) }}" style="max-width:100%;">
+{% else %}
+    <video controls style="max-width:100%;">
+        <source src="{{ url_for('stream', fname=media.filename) }}" type="video/mp4">
+        Your browser does not support HTML5 video.
+    </video>
+{% endif %}
+<p>{{ media.description }}</p>
+<ul>
+    <li><strong>Category:</strong> {{ media.category }}</li>
+    <li><strong>Domain:</strong> {{ media.otpf_domain }}</li>
+    <li><strong>FOR:</strong> {{ media.for_name }}</li>
+    <li><strong>Condition:</strong> {{ media.target_condition }}</li>
+</ul>
+{% endblock %}
+#}
+

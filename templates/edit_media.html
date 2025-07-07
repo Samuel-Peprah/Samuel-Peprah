@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Edit Media: {{ media.title }}</h2>
+<form method="POST">
+    <label>Title:</label><br>
+    <input type="text" name="title" value="{{ media.title }}" required><br><br>
+
+    <label>Description:</label><br>
+    <textarea name="description" required>{{ media.description }}</textarea><br><br>
+
+    <label>Category:</label><br>
+    <input type="text" name="category" value="{{ media.category }}"><br><br>
+
+    <label>OTPF Domain:</label><br>
+    <select name="otpf_domain" required>
+        {% for d in taxonomy.otpf_domains %}
+        <option value="{{ d }}" {% if media.otpf_domain == d %}selected{% endif %}>{{ d }}</option>
+        {% endfor %}
+    </select><br><br>
+
+    <label>FOR Name:</label><br>
+    <select name="for_name">
+        {% for f in taxonomy.for_names %}
+        <option value="{{ f }}" {% if media.for_name == f %}selected{% endif %}>{{ f }}</option>
+        {% endfor %}
+    </select><br><br>
+
+    <label>Target Condition:</label><br>
+    <select name="target_condition">
+        {% for c in taxonomy.conditions %}
+        <option value="{{ c }}" {% if media.target_condition == c %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
+    </select><br><br>
+
+    <button type="submit">Update</button>
+</form>
+{% endblock %}

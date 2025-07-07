@@ -1,0 +1,11 @@
+[build-system]
+requires = ["setuptools>=42"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "theraptube"
+version = "1.0.0"  # Sync with __version__.py
+dependencies = [
+    "Flask==3.0.3",
+    "bump2version",
+]

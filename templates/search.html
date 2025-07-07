@@ -1,0 +1,46 @@
+
+{% extends 'base.html' %}
+{% block content %}
+<h2>Search Results for "{{ query }}"</h2>
+
+<div class="grid">
+  {% for item in media %}
+    <div class="card">
+      <a href="{{ url_for('watch', media_id=item.id) }}">
+        <img src="{{ url_for('static', filename='uploads/thumbs/' + item.thumbnail) }}"
+             alt="{{ item.title }}">
+        <p>{{ item.title }}</p>
+        <small>{{ item.target_condition }} · {{ item.otpf_domain }}</small>
+      </a>
+    </div>
+  {% else %}
+    <p>No matches.</p>
+  {% endfor %}
+</div>
+{% endblock %}
+
+
+{#
+{% extends 'base.html' %}
+{% block content %}
+<h2>Search Results for "{{ query }}"</h2>
+<div class="grid">
+    {% for item in media %}
+        <div class="card">
+            <a href="{{ url_for('watch', media_id=item.id) }}">
+                {% if item.filename.lower().endswith(('png','jpg','jpeg','gif')) %}
+                    <img src="{{ url_for('static', filename='uploads/' + item.filename) }}" alt="{{ item.title }}">
+                {% else %}
+                    <video src="{{ url_for('static', filename='uploads/' + item.filename) }}" preload="metadata"></video>
+                {% endif %}
+                <p>{{ item.title }}</p>
+                <small>{{ item.target_condition }} · {{ item.otpf_domain }}</small>
+            </a>
+        </div>
+    {% else %}
+        <p>No matches.</p>
+    {% endfor %}
+</div>
+{% endblock %}
+#}
+

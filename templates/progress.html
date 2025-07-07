@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>My Progress</h2>
+<table>
+  <tr>
+    <th>Title</th><th>Condition</th><th>%</th><th>Completed</th><th>Last Watched</th>
+  </tr>
+  {% for r in rows %}
+    <tr>
+        <td data-label="Title">
+            <a href="{{ url_for('watch', media_id=r.m_id) }}">{{ r.title }}</a>
+        </td>
+        <td data-label="Condition">{{ r.target_condition }}</td>
+        <td data-label="%">{{ r.progress_percent }}</td>
+        <td data-label="Completed">{{ '✓' if r.completed else '' }}</td>
+        <td data-label="Last Watched">{{ r.watched_at.strftime('%Y-%m-%d') }}</td>
+    </tr>
+  {% endfor %}
+</table>
+
+<p><a href="{{ url_for('progress_report') }}">Download CSV</a></p>
+{% endblock %}
