@@ -91,6 +91,10 @@ app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "Atom-De-Legend")
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(BASE_DIR, 'portal.db')
 app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
+app.config['PAYSTACK_SEC_KEY'] = os.getenv("PAYSTACK_SEC_KEY")
+app.config['PAYSTACK_PUB_KEY'] = os.getenv("PAYSTACK_PUB_KEY")
+app.config['PAYSTACK_WEBHOOK_SECRET'] = os.getenv("PAYSTACK_WEBHOOK_SECRET")
+
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
@@ -135,19 +139,19 @@ class WatchHistory(db.Model):
     watched_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Plan(db.Model):
-    id            = db.Column(db.Integer, primary_key=True)
-    name          = db.Column(db.String, 50, nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)  # e.g. "Basic", "Pro", "Premium"
     amount_pesewas = db.Column(db.Integer, nullable=False)   # 199900 == GHS 1 999.00
     interval_days = db.Column(db.Integer, default=30)        # 30, 90, 365 …
     is_active     = db.Column(db.Boolean, default=True)
 
 class Subscription(db.Model):
-    id                = db.Column(db.Integer, primary_key=True)
-    user_id           = db.Column(db.Integer, db.ForeignKey("users.id"))
-    plan_id           = db.Column(db.Integer, db.ForeignKey("plan.id"))
-    status            = db.Column(db.String, default="active")    # active | expired | canceled
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    plan_id = db.Column(db.Integer, db.ForeignKey("plan.id"))
+    status  = db.Column(db.String, default="active")    # active | expired | canceled
     current_period_end = db.Column(db.DateTime)
-    last_tx_ref       = db.Column(db.String)                      # paystack reference
+    last_tx_ref = db.Column(db.String)                      # paystack reference
 
     user = db.relationship("User", backref="subscription", uselist=False)
     plan = db.relationship("Plan")
