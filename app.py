@@ -16,6 +16,10 @@ from config import APP_VERSION
 import subprocess
 from dotenv import load_dotenv
 load_dotenv()
+import requests, hmac, hashlib, json
+from functools import wraps
+
+
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -92,7 +96,7 @@ db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 moment = Moment(app)
-
+# models.py
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -130,6 +134,25 @@ class WatchHistory(db.Model):
     completed = db.Column(db.Boolean, default=False)
     watched_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+class Plan(db.Model):
+    id            = db.Column(db.Integer, primary_key=True)
+    name          = db.Column(db.String, 50, nullable=False)
+    amount_pesewas = db.Column(db.Integer, nullable=False)   # 199900 == GHS 1 999.00
+    interval_days = db.Column(db.Integer, default=30)        # 30, 90, 365 …
+    is_active     = db.Column(db.Boolean, default=True)
+
+class Subscription(db.Model):
+    id                = db.Column(db.Integer, primary_key=True)
+    user_id           = db.Column(db.Integer, db.ForeignKey("users.id"))
+    plan_id           = db.Column(db.Integer, db.ForeignKey("plan.id"))
+    status            = db.Column(db.String, default="active")    # active | expired | canceled
+    current_period_end = db.Column(db.DateTime)
+    last_tx_ref       = db.Column(db.String)                      # paystack reference
+
+    user = db.relationship("User", backref="subscription", uselist=False)
+    plan = db.relationship("Plan")
+
+
 
 @app.context_processor
 def inject_version():
@@ -156,6 +179,93 @@ def inject_utc_now():
 #         c.set_password('pass')
 #         db.session.add(c)
 #     db.session.commit()
+
+
+PAYSTACK_HEADERS = {"Authorization": f"Bearer {app.config['PAYSTACK_SEC_KEY']}"}
+
+def subscription_required(fn):
+    @wraps(fn)
+    def _wrap(*a, **kw):
+        if (not current_user.is_authenticated or
+            not current_user.subscription or
+            current_user.subscription.current_period_end < datetime.utcnow()):
+            flash("Please pick a plan to unlock TherapTube 📺", "warning")
+            return redirect(url_for("pricing"))
+        return fn(*a, **kw)
+    return _wrap
+
+@app.route("/pricing")
+def pricing():
+    plans = Plan.query.filter_by(is_active=True).all()
+    return render_template("pricing.html",
+                            plans=plans,
+                            pub_key=app.config["PAYSTACK_PUB_KEY"])
+
+
+
+@app.post("/paystack/verify")
+@login_required
+def paystack_verify():
+    data = request.get_json(force=True)
+    ref  = data["ref"]; plan_id = int(data["plan_id"])
+
+    # 1. verify with Paystack
+    r = requests.get(f"https://api.paystack.co/transaction/verify/{ref}",
+                        headers=PAYSTACK_HEADERS, timeout=10)
+    js = r.json()
+    if not (js.get("status") and js["data"]["status"] == "success"):
+        return {"ok": False}, 400
+
+    # 2. mark / extend subscription
+    plan = Plan.query.get_or_404(plan_id)
+    sub  = current_user.subscription
+    from datetime import datetime, timedelta
+    now  = datetime.utcnow()
+
+    if sub and sub.current_period_end > now:      # extend
+        sub.current_period_end += timedelta(days=plan.interval_days)
+    else:                                         # new sub
+        sub = Subscription(user=current_user,
+                            plan=plan,
+                            current_period_end = now + timedelta(days=plan.interval_days))
+        db.session.add(sub)
+    sub.status       = "active"
+    sub.last_tx_ref  = ref
+    db.session.commit()
+    return {"ok": True}
+
+
+@app.post("/ps_webhook")
+def paystack_webhook():
+    raw  = request.get_data()
+    sign = request.headers.get("x-paystack-signature","")
+    secret = app.config["PAYSTACK_WEBHOOK_SECRET"].encode()
+    if hmac.new(secret, raw, hashlib.sha512).hexdigest() != sign:
+        abort(400)
+
+    event = json.loads(raw)
+    if event["event"] == "charge.success":
+        ref = event["data"]["reference"]
+        _handle_charge_success(ref)
+    return {"status": "ok"}
+
+def _handle_charge_success(ref):
+    """
+    Handle successful charge event from Paystack webhook.
+    """
+    # 1. Get the subscription by reference
+    sub = Subscription.query.filter_by(last_tx_ref=ref).first()
+    if not sub:
+        print(f"⚠️ No subscription found for ref {ref}")
+        return
+
+    # 2. Update the subscription status
+    sub.status = "active"
+    db.session.commit()
+
+    print(f"✅ Subscription {sub.id} activated for user {sub.user.username} with ref {ref}")
+
+
 
 
 def make_thumbnail(video_path: str, thumb_path: str):

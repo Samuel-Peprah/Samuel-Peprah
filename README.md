@@ -19,7 +19,7 @@ TherapTube ia a web app for therapists to upload activity videos based on client
 ## Quick Start
 
 ```bash
-git clone https://github.com/Samuel-Peprah/ot_demo_v2.git
+git clone https://github.com/Samuel-Peprah/theraptube.git
 cd ot_demo_v2
 python -m venv venv
 .\venv\Scripts\activate.Ps1            # Windows

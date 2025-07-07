@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Select your plan</h1>
+<div class="plans">
+{% for p in plans %}
+  <div class="card">
+    <h3>{{ p.name }}</h3>
+    <p class="price">GH¢ {{ "%.2f"|format(p.amount_pesewas/100) }} / {{ p.interval_days }} days</p>
+    <button
+       class="btn pay-btn"
+       data-plan="{{ p.id }}"
+       data-amount="{{ p.amount_pesewas }}"
+       data-name="{{ p.name }}">
+       Subscribe
+    </button>
+  </div>
+{% endfor %}
+</div>
+
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script>
+document.querySelectorAll('.pay-btn').forEach(btn=>{
+  btn.onclick = ()=>{
+    const planId = btn.dataset.plan;
+    const handler = PaystackPop.setup({
+      key: "{{ pub_key }}",
+      email: "{{ current_user.email if current_user.is_authenticated else '' }}",
+      amount: btn.dataset.amount,     // in pesewas
+      currency: "GHS",
+      channels: ['mobile_money','card'],
+      metadata: {custom_fields:[{display_name:"Plan", value:btn.dataset.name}]},
+      callback: function(resp){
+          // hit server to verify & activate
+          fetch("/paystack/verify",{
+             method:"POST",
+             headers:{'Content-Type':'application/json'},
+             body: JSON.stringify({ ref:resp.reference, plan_id:planId })
+          }).then(()=>location.href="/client");     // or success page
+      },
+      onClose: function(){ alert("Payment window closed"); }
+    });
+    handler.openIframe();
+  };
+});
+</script>
+{% endblock %}

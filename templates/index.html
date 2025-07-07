@@ -2,23 +2,30 @@
 {% extends 'base.html' %}
 {% block content %}
 <h1 class="section-title">All Media</h1>
-
-<div class="media-grid">
-    {% for item in media %}
-    <div class="card">
-        <a href="{{ url_for('watch', media_id=item.id) }}">
-            <img src="{{ url_for('static', filename='uploads/thumbs/' + item.thumbnail) }}"
-                alt="{{ item.title }}">
-            <div class="card-content">
-                <p class="card-title">{{ item.title }}</p>
-                <small class="card-meta">{{ item.target_condition }} · {{ item.otpf_domain }}</small>
-            </div>
-        </a>
+{% if current_user.is_authenticated and current_user.subscription and
+    current_user.subscription.current_period_end > now %}
+    <div class="media-grid">
+        {% for item in media %}
+        <div class="card">
+            <a href="{{ url_for('watch', media_id=item.id) }}">
+                <img src="{{ url_for('static', filename='uploads/thumbs/' + item.thumbnail) }}"
+                    alt="{{ item.title }}">
+                <div class="card-content">
+                    <p class="card-title">{{ item.title }}</p>
+                    <small class="card-meta">{{ item.target_condition }} · {{ item.otpf_domain }}</small>
+                </div>
+            </a>
+        </div>
+        {% else %}
+            <p>No media uploaded yet.</p>
+        {% endfor %}
     </div>
-    {% else %}
-        <p>No media uploaded yet.</p>
-    {% endfor %}
-</div>
+{% else %}
+    <div class="paywall-blur">
+        <p>🔒  This feature requires an active subscription.</p>
+        <a class="btn" href="{{ url_for('pricing') }}">See plans</a>
+    </div>
+{% endif %}
 {% endblock %}
 
 
