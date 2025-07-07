@@ -20,9 +20,9 @@ TherapTube ia a web app for therapists to upload activity videos based on client
 
 ```bash
 git clone https://github.com/Samuel-Peprah/ot_demo_v2.git
-cd activeOT
+cd ot_demo_v2
 python -m venv venv
-.\venv\Scripts\activate            # Windows
+.\venv\Scripts\activate.Ps1            # Windows
 pip install -r requirements.txt
 set FLASK_APP=app.py
 flask run
