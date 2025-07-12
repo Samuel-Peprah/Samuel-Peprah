@@ -12,12 +12,3 @@ portal.db # Explicitly ignore your database file
 # Uploaded Media
 static/uploads/
 
-# Virtual Environment
-venv/
-*.env # If your .env file contains sensitive info
-.flaskenv
-
-# IDE/Editor files
-.vscode/
-.idea/
-*.swp
