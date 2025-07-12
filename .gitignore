@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Database
+*.db
+portal.db # Explicitly ignore your database file
+*.sqlite3
+
+# Uploaded Media
+static/uploads/
+
+# Virtual Environment
+venv/
+*.env # If your .env file contains sensitive info
+.flaskenv
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.swp

@@ -1,0 +1,167 @@
+/* General container styling for the subscription page */
+.my-subscription-page {
+    padding: 20px;
+    max-width: 900px; /* Limits the overall width for better readability */
+    margin: 30px auto; /* Centers the content block on the page */
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Soft shadow for a modern feel */
+}
+
+.my-subscription-page h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 35px;
+    font-size: 2.5em; /* Larger title */
+    font-weight: 700;
+}
+
+/* Subscription Details Card */
+.subscription-details-card,
+.no-subscription-card {
+    background-color: #fcfcfc;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 30px;
+    margin-bottom: 40px;
+    text-align: center;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.subscription-details-card h3 {
+    color: #555;
+    font-size: 1.6em;
+    margin-bottom: 20px;
+}
+
+.subscription-details-card .plan-name {
+    color: #007bff; /* Highlight color for plan name */
+    font-weight: bold;
+    font-size: 1.1em; /* Slightly larger plan name */
+}
+
+.subscription-details-card p {
+    font-size: 1.15em;
+    color: #666;
+    margin-bottom: 12px;
+    line-height: 1.6;
+}
+
+/* Status Messages (Active/Expired) */
+.status-message {
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 25px;
+    display: inline-block;
+    margin-top: 20px;
+    font-size: 1em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-message.active {
+    background-color: #e6ffed; /* Light green background */
+    color: #28a745; /* Dark green text */
+    border: 1px solid #28a745;
+}
+
+.status-message.expired {
+    background-color: #ffebe6; /* Light red background */
+    color: #dc3545; /* Dark red text */
+    border: 1px solid #dc3545;
+}
+
+/* Primary Button Styling */
+.button.primary-button {
+    display: inline-block;
+    background-color: #007bff;
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 25px; /* Pill shape */
+    text-decoration: none;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 25px;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+}
+
+.button.primary-button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px); /* Slight lift on hover */
+}
+
+/* Horizontal Rule */
+hr {
+    border: 0;
+    height: 1px;
+    background: #e0e0e0;
+    margin: 50px 0;
+}
+
+/* Fancy Section Styling */
+.fancy-section {
+    margin-top: 40px;
+    text-align: center;
+}
+
+.fancy-section h2 {
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 2em;
+    font-weight: 600;
+}
+
+/* Static Media Gallery */
+.static-media-gallery {
+    display: flex;
+    flex-wrap: wrap; /* Allows items to wrap to the next line */
+    justify-content: center; /* Centers items horizontally */
+    gap: 25px; /* Space between items */
+    margin-top: 30px;
+}
+
+/* Individual Image/Video Item Styling */
+.gallery-item {
+    width: 100%; /* Default to full width on very small screens */
+    max-width: 280px; /* Reasonable maximum width for individual items */
+    height: 200px; /* Fixed height for consistent look */
+    object-fit: cover; /* Ensures images/videos cover the area without distortion */
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15); /* More prominent shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden; /* Hides parts of the image/video that are cropped by object-fit */
+}
+
+.gallery-item:hover {
+    transform: translateY(-8px); /* More pronounced lift on hover */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
+}
+
+/* Responsive Adjustments for Gallery */
+@media (min-width: 600px) {
+    .gallery-item {
+        width: calc(50% - 25px); /* Two items per row on medium screens */
+    }
+}
+
+@media (min-width: 900px) {
+    .gallery-item {
+        width: calc(33.333% - 25px); /* Three items per row on larger screens */
+    }
+}
+
+/* Styling for the clickable badge (from previous step) */
+.clickable-badge {
+    cursor: pointer;
+    text-decoration: none; /* Remove default underline */
+    color: inherit; /* Inherit text color for consistency */
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.clickable-badge:hover {
+    opacity: 0.9;
+    transform: translateY(-1px); /* Slight lift */
+}

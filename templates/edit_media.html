@@ -2,6 +2,8 @@
 {% block content %}
 <h2>Edit Media: {{ media.title }}</h2>
 <form method="POST">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    
     <label>Title:</label><br>
     <input type="text" name="title" value="{{ media.title }}" required><br><br>
 

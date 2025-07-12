@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="section-title">Therapist Dashboard: All Media Content</h1>
+
+<div class="media-grid">
+    {% for item in media %}
+        <div class="card">
+            <a href="{{ url_for('watch', media_id=item.id) }}">
+                <img src="{{ url_for('static', filename='uploads/thumbs/' + item.thumbnail) }}" alt="{{ item.title }}">
+                <div class="card-content">
+                    <p class="card-title">{{ item.title }}</p>
+                    <small class="card-meta">{{ item.target_condition }} · {{ item.otpf_domain }}</small>
+                </div>
+            </a>
+        </div>
+    {% else %}
+        <p>No media uploaded yet. As a therapist, you can upload new resources to expand the library!</p>
+        <a class="btn btn-primary" href="{{ url_for('upload') }}">Upload New Media</a> {# Link to your upload route #}
+    {% endfor %}
+</div>
+{% endblock %}

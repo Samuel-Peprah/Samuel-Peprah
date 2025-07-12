@@ -277,7 +277,7 @@ a:hover {
 
 /* Push content up so it doesn’t hide behind footer */
 .container {
-  padding-bottom: 80px; /* same height or more than footer */
+  padding-bottom: 120px; /* same height or more than footer */
 }
 
 

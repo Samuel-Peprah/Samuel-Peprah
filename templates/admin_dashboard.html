@@ -1,109 +1,187 @@
-
 {% extends 'base.html' %}
+
 {% block content %}
-<h1>Admin Dashboard</h1>
+<link rel="stylesheet" href="{{ url_for('static', filename='admin_dashboard_styles.css') }}">
+{# Ensure Montserrat and Poppins are loaded, either here or in your base.html #}
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-<!-- ===== KPI cards ===== -->
-<div class="kpi-row">
-  <div class="kpi-card">
-    <h3>{{ total_uploads }}</h3>
-    <p>Total Uploads</p>
-  </div>
-  <div class="kpi-card">
-    <h3>{{ total_views }}</h3>
-    <p>Total Views</p>
-  </div>
+
+<div class="admin-dashboard-layout"> {# Main container for dashboard layout #}
+    <h1 class="dashboard-main-title">Admin Dashboard</h1> {# New title class #}
+
+    <div class="dashboard-kpi-grid"> {# New grid/flex container for KPIs #}
+        <div class="kpi-metric-card"> {# New KPI card class #}
+            <h3 class="kpi-value">{{ total_uploads }}</h3> {# New value class #}
+            <p class="kpi-label">Total Uploads</p> {# New label class #}
+        </div>
+        <div class="kpi-metric-card"> {# New KPI card class #}
+            <h3 class="kpi-value">{{ total_views }}</h3> {# New value class #}
+            <p class="kpi-label">Total Views</p> {# New label class #}
+        </div>
+        <div class="kpi-metric-card"> {# New KPI card class #}
+            <h3 class="kpi-value">{{ total_clients }}</h3> {# New value class #}
+            <p class="kpi-label">Total Clients</p> {# New label class #}
+        </div>
+        <div class="kpi-metric-card"> {# New KPI card class #}
+            <h3 class="kpi-value">{{ total_therapists }}</h3> {# New value class #}
+            <p class="kpi-label">Total Therapists</p> {# New label class #}
+        </div>
+        <div class="kpi-metric-card"> {# New KPI card class #}
+            <h3 class="kpi-value">{{ token }}</h3> {# New value class #}
+            <p class="kpi-label">Therapist Invite Token</p> {# New label class #}
+        </div>
+    </div>
+
+    <div class="dashboard-chart-section">
+        <h2 class="chart-title">Top 10 Most‑Viewed Media</h2>
+        <div class="chart-container"> {# Container for individual chart #}
+            <canvas id="viewsChart" class="chart-canvas"></canvas>
+        </div>
+    </div>
+
+    <div class="dashboard-chart-section">
+        <h2 class="chart-title">Views by Target Condition</h2>
+        <div class="chart-container"> {# Container for individual chart #}
+            <canvas id="conditionChart" class="chart-canvas"></canvas>
+        </div>
+    </div>
+
+    <div class="dashboard-table-section">
+        <h2 class="table-title">All Uploads</h2>
+        <div class="responsive-table-container"> {# Container for responsive table #}
+            <table class="dashboard-data-table"> {# New table class #}
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Condition</th>
+                        <th>Domain</th>
+                        <th class="hide-on-mobile">Views</th> {# New class for hiding #}
+                        <th class="hide-on-mobile">Uploader</th> {# New class for hiding #}
+                        <th class="hide-on-mobile">Date</th> {# New class for hiding #}
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in media %}
+                    <tr>
+                        <td data-label="Title">{{ item.title }}</td>
+                        <td data-label="Condition">{{ item.target_condition }}</td>
+                        <td data-label="Domain">{{ item.otpf_domain }}</td>
+                        <td data-label="Views" class="hide-on-mobile">{{ item.view_count }}</td>
+                        <td data-label="Uploader" class="hide-on-mobile">{{ item.uploader.username }}</td>
+                        <td data-label="Date" class="hide-on-mobile">{{ item.upload_time.strftime('%Y-%m-%d') }}</td>
+                        <td data-label="Actions" class="table-actions"> {# New class for actions #}
+                            <a href="{{ url_for('watch', media_id=item.id) }}" class="action-icon-btn" title="View">👁</a>
+                            <a href="{{ url_for('edit_media', media_id=item.id) }}" class="action-icon-btn" title="Edit">✏️</a>
+                            <form action="{{ url_for('delete_media', media_id=item.id) }}" method="POST" class="inline-form" onsubmit="return confirm('Delete this media?');">
+                              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                              <button type="submit" class="action-icon-btn delete-btn" title="Delete">🗑</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
-<h2 style="margin-top:25px;">Top 10 Most‑Viewed Media</h2>
-<canvas id="viewsChart" class="chart-canvas"></canvas>
-
-<h3>Views by Target Condition</h3>
-<canvas id="conditionChart" class="chart-canvas"></canvas>
-
-<!-- ===== Uploads table ===== -->
-<h2 style="margin-top:35px;">All Uploads</h2>
-<div class="responsive-table">
-  <table class="clean-table">
-    <thead>
-      <tr>
-        <th>Title</th>
-        <th>Condition</th>
-        <th>Domain</th>
-        <th class="hide-sm">Views</th>
-        <th class="hide-sm">Uploader</th>
-        <th class="hide-sm">Date</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in media %}
-      <tr>
-        <td data-label="Title">{{ item.title }}</td>
-        <td data-label="Condition">{{ item.target_condition }}</td>
-        <td data-label="Domain">{{ item.otpf_domain }}</td>
-        <td data-label="Views" class="hide-sm">{{ item.view_count }}</td>
-        <td data-label="Uploader" class="hide-sm">{{ item.uploader.username }}</td>
-        <td data-label="Date" class="hide-sm">{{ item.upload_time.strftime('%Y-%m-%d') }}</td>
-        <td data-label="Actions">
-          <a href="{{ url_for('watch', media_id=item.id) }}">👁</a>
-          <a href="{{ url_for('edit_media', media_id=item.id) }}">✏️</a>
-          <form action="{{ url_for('delete_media', media_id=item.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this media?');">
-            <button type="submit">🗑</button>
-          </form>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-
-<!-- ===== Chart.js script ===== -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const ctx = document.getElementById('viewsChart').getContext('2d');
-new Chart(ctx, {
-  type: 'bar',
-  data: {
-    labels: {{ chart_labels|tojson }},
-    datasets: [{
-      label: 'Views',
-      data: {{ chart_views|tojson }},
-    }]
-  },
-  options: {
-    plugins: { legend: { display: false } },
-    scales: { y: { beginAtZero: true } }
-  }
+const viewsCtx = document.getElementById('viewsChart').getContext('2d');
+new Chart(viewsCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ chart_labels|tojson }},
+        datasets: [{
+            label: 'Views',
+            data: {{ chart_views|tojson }},
+            backgroundColor: Array({{ chart_views|length }}).fill('rgba(var(--color-primary-rgb), 0.7)'), /* Use primary color for all bars */
+            borderColor: Array({{ chart_views|length }}).fill('rgba(var(--color-primary-rgb), 1)'),
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false, /* Allow custom height if needed */
+        plugins: {
+            legend: { display: false },
+            tooltip: { mode: 'index', intersect: false }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: { color: 'rgba(0,0,0,0.05)' }
+            },
+            x: {
+                grid: { display: false }
+            }
+        }
+    }
 });
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  const ctx2 = document.getElementById('conditionChart');
-  new Chart(ctx2, {
+const conditionCtx = document.getElementById('conditionChart').getContext('2d');
+new Chart(conditionCtx, {
     type: 'pie',
     data: {
-      labels: {{ condition_labels|tojson }},
-      datasets: [{
-        label: 'Views by Condition',
-        data: {{ condition_data|tojson }},
-        backgroundColor: [
-          '#8e44ad', '#f39c12', '#3498db', '#e74c3c', '#2ecc71', '#1abc9c',
-          '#9b59b6', '#34495e', '#16a085', '#d35400'
-        ]
-      }]
+        labels: {{ condition_labels|tojson }},
+        datasets: [{
+            label: 'Views by Condition',
+            data: {{ condition_data|tojson }},
+            backgroundColor: [
+                'rgba(var(--color-primary-rgb), 0.7)',
+                'rgba(var(--color-accent-rgb), 0.7)',
+                'rgba(var(--color-success-rgb), 0.7)',
+                '#e74c3c', // Example fallback or additional colors
+                '#9b59b6',
+                '#34495e',
+                '#16a085',
+                '#d35400',
+                '#2980b9',
+                '#f1c40f'
+            ],
+            hoverOffset: 4
+        }]
     },
     options: {
-      responsive: true,
-      plugins: {
-        legend: { position: 'right' }
-      }
+        responsive: true,
+        maintainAspectRatio: false, /* Allow custom height if needed */
+        plugins: {
+            legend: {
+                position: 'right',
+                labels: {
+                    font: { family: 'Poppins', size: 12 },
+                    color: 'var(--color-text)'
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        let label = context.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        if (context.parsed !== null) {
+                            label += context.parsed;
+                        }
+                        return label;
+                    }
+                }
+            }
+        }
     }
-  });
+});
 </script>
 
 {% endblock %}
+
+
+
+
+
+
 
 
 {#

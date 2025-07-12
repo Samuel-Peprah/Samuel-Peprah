@@ -1,0 +1,359 @@
+/* ==================================== */
+/* 0. Import Google Fonts (if not in base.html) */
+/* ==================================== */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600;700&display=swap');
+
+/* Ensure :root variables are accessible, either from base.html's style.css
+   or by copying them here if this is the only CSS for the page. */
+/* 🌈 Design System with :root */
+:root {
+    --color-primary: #1e3c72;
+    --color-primary-light: #2a5298;
+    --color-accent: #9d50bb;
+    --color-accent-dark: #6e48aa;
+    --color-bg: #f9f9f9;
+    --color-text: #222;
+    --color-white: #fff;
+
+    --gradient-primary: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+    --gradient-accent: linear-gradient(135deg, var(--color-accent), var(--color-accent-dark));
+}
+
+/* 🛠️ Reset & Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--color-bg); /* Use your general background color */
+    color: var(--color-text);
+    line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', sans-serif;
+    color: var(--color-primary); /* Default heading color */
+}
+
+a {
+    text-decoration: none;
+    color: var(--color-primary);
+    transition: 0.3s ease;
+}
+a:hover {
+    color: var(--color-accent);
+}
+
+
+/* ==================================== */
+/* 1. Admin Dashboard Layout */
+/* ==================================== */
+.admin-dashboard-layout {
+    padding: var(--spacing-lg) var(--spacing-md);
+    max-width: 1200px; /* Max width for content */
+    margin: var(--spacing-lg) auto; /* Center the dashboard content */
+}
+
+.dashboard-main-title {
+    font-size: 3em;
+    font-weight: 700;
+    margin-bottom: var(--spacing-lg);
+    text-align: center;
+    color: var(--color-primary-dark);
+}
+
+/* ==================================== */
+/* 2. KPI Cards */
+/* ==================================== */
+.dashboard-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid for KPIs */
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+.kpi-metric-card {
+    background-color: var(--color-white);
+    border-radius: var(--border-radius-lg); /* Slightly more rounded corners */
+    box-shadow: var(--box-shadow-md);
+    padding: var(--spacing-lg);
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid var(--color-border);
+}
+
+.kpi-metric-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--box-shadow-lg);
+}
+
+.kpi-value {
+    font-size: 3.5em; /* Large, prominent numbers */
+    font-weight: 700;
+    color: var(--color-accent); /* Accent color for values */
+    margin-bottom: var(--spacing-xs);
+    line-height: 1;
+}
+
+.kpi-label {
+    font-size: 1.2em;
+    color: var(--color-text-light);
+    font-weight: 600;
+}
+
+/* ==================================== */
+/* 3. Charts Section */
+/* ==================================== */
+.dashboard-chart-section {
+    background-color: var(--color-white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow-md);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+.chart-title {
+    font-size: 2em;
+    font-weight: 600;
+    margin-bottom: var(--spacing-lg);
+    color: var(--color-primary);
+    text-align: center;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.chart-title::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background: var(--gradient-accent);
+    border-radius: 2px;
+}
+
+.chart-container {
+    position: relative;
+    height: 400px; /* Fixed height for charts for consistency */
+    width: 100%;
+}
+
+.chart-canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* ==================================== */
+/* 4. Data Table */
+/* ==================================== */
+.dashboard-table-section {
+    background-color: var(--color-white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow-md);
+    padding: var(--spacing-lg);
+}
+
+.table-title {
+    font-size: 2em;
+    font-weight: 600;
+    margin-bottom: var(--spacing-lg);
+    color: var(--color-primary);
+    text-align: center;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.table-title::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background: var(--gradient-accent);
+    border-radius: 2px;
+}
+
+.responsive-table-container {
+    overflow-x: auto; /* Enable horizontal scrolling for small screens */
+}
+
+.dashboard-data-table {
+    width: 100%;
+    border-collapse: collapse; /* Remove space between cells */
+    margin-top: var(--spacing-md);
+    font-family: 'Poppins', sans-serif;
+}
+
+.dashboard-data-table th,
+.dashboard-data-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border); /* Light border */
+}
+
+.dashboard-data-table th {
+    background-color: var(--color-primary-light); /* Light primary background for headers */
+    color: var(--color-white);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9em;
+}
+
+.dashboard-data-table tbody tr:hover {
+    background-color: var(--color-bg); /* Light background on row hover */
+}
+
+.dashboard-data-table tbody tr:last-child td {
+    border-bottom: none; /* No border for the last row */
+}
+
+/* Responsive Table: Data attributes for smaller screens */
+.dashboard-data-table td[data-label] {
+    position: relative;
+}
+
+@media (max-width: 768px) {
+    .dashboard-data-table thead {
+        display: none; /* Hide table headers on small screens */
+    }
+
+    .dashboard-data-table,
+    .dashboard-data-table tbody,
+    .dashboard-data-table tr,
+    .dashboard-data-table td {
+        display: block; /* Make table elements behave like blocks */
+        width: 100%; /* Full width */
+    }
+
+    .dashboard-data-table tr {
+        margin-bottom: var(--spacing-md);
+        border: 1px solid var(--color-border);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        background-color: var(--color-white);
+        box-shadow: var(--box-shadow-sm);
+    }
+
+    .dashboard-data-table td {
+        text-align: right;
+        padding-left: 50%; /* Space for data-label pseudo-element */
+        position: relative;
+        border-bottom: 1px dashed var(--color-border); /* Dashed border for separation */
+    }
+
+    .dashboard-data-table td:last-child {
+        border-bottom: none;
+    }
+
+    .dashboard-data-table td::before {
+        content: attr(data-label); /* Use data-label for content */
+        position: absolute;
+        left: 15px;
+        width: calc(50% - 30px);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-weight: 600;
+        color: var(--color-primary-dark);
+        text-align: left;
+    }
+
+    .hide-on-mobile { /* Ensure these columns are hidden on mobile */
+        display: none !important;
+    }
+}
+
+
+/* ==================================== */
+/* 5. Table Action Buttons */
+/* ==================================== */
+.table-actions {
+    display: flex;
+    gap: var(--spacing-xs); /* Space between action buttons */
+    justify-content: flex-start; /* Align actions to left */
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .table-actions {
+        justify-content: flex-end; /* Align actions to right on mobile */
+        padding-top: var(--spacing-sm);
+    }
+}
+
+
+.action-icon-btn {
+    background-color: var(--color-primary); /* Primary background for view/edit */
+    color: var(--color-white);
+    border: none;
+    padding: 8px 12px;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    font-size: 1em;
+    text-decoration: none; /* Remove underline for links */
+    display: inline-flex; /* Align icon and text if present */
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.action-icon-btn.delete-btn {
+    background-color: var(--color-error); /* Error color for delete */
+}
+
+.action-icon-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--box-shadow-sm);
+    background-color: var(--color-primary-light);
+}
+
+.action-icon-btn.delete-btn:hover {
+    background-color: var(--color-error-dark);
+}
+
+.inline-form {
+    display: inline; /* Keep form inline with other actions */
+}
+
+/* ==================================== */
+/* 6. General Responsiveness */
+/* ==================================== */
+@media (max-width: 992px) {
+    .dashboard-main-title {
+        font-size: 2.5em;
+    }
+    .kpi-value {
+        font-size: 3em;
+    }
+    .chart-title, .table-title {
+        font-size: 1.8em;
+    }
+}
+
+@media (max-width: 576px) {
+    .admin-dashboard-layout {
+        padding: var(--spacing-md) var(--spacing-sm);
+    }
+    .dashboard-main-title {
+        font-size: 2em;
+    }
+    .kpi-value {
+        font-size: 2.5em;
+    }
+    .kpi-label {
+        font-size: 1em;
+    }
+    .chart-title, .table-title {
+        font-size: 1.5em;
+    }
+    .chart-container {
+        height: 300px; /* Smaller height for charts on very small screens */
+    }
+}

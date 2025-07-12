@@ -1,32 +1,194 @@
+{% extends 'base.html' %}
 
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='landing_page.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<main class="static-landing-page"> {# Changed class name here #}
+    <section class="hero-main-section"> {# Changed class name #}
+        <div class="hero-intro-content"> {# Changed class name #}
+            <h1>Welcome to TherapTube</h1>
+            <p>Your personalized journey to Physical, Occupational and Mental well-being through curated media content.</p>
+            <p>Join our community of clients and therapists dedicated to improving health and wellness.</p>
+            <p></p>
+            <div class="hero-action-buttons"> {# Changed class name #}
+                {% if not current_user.is_authenticated %}
+                    <a href="{{ url_for('login') }}" class="btn btn-primary">Log In</a>
+                    <a href="{{ url_for('register') }}" class="btn btn-secondary">Join Us</a>
+                {% else %}
+                    {% if current_user.role == 'client' %}
+                        <p>Welcome back, {{ current_user.username }}!</p>
+                        <a href="{{ url_for('client_dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
+                    {% elif current_user.role == 'therapist' %}
+                        <p>Welcome back, {{ current_user.username }}!</p>
+                        <a href="{{ url_for('therapist_dashboard') }}" class="btn btn-primary">Go to Therapist Dashboard</a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        <div class="hero-visual-area"> {# Changed class name #}
+            {# You can add an image here. Make sure the path is correct #}
+            <img src="{{ url_for('static', filename='images/theraptube_image-removebg_color.png') }}" alt="Wellness illustration">
+        </div>
+    </section>
+
+    <section class="features-showcase"> {# Changed class name #}
+        <h2>What We Offer</h2>
+        <div class="features-grid-items"> {# Changed class name #}
+            <div class="feature-card"> {# Changed class name #}
+                {# Optional: Add a graphic or icon here, e.g., <i class="fas fa-user-check feature-icon"></i> #}
+                <h3>Personalized Content</h3>
+                <p>Access a library of videos, audio, and guides tailored to your needs.</p>
+            </div>
+            <div class="feature-card"> {# Changed class name #}
+                {# Optional: Add a graphic or icon here #}
+                <h3>Progress Tracking</h3>
+                <p>Monitor your journey and celebrate your milestones with detailed reports.</p>
+            </div>
+            <div class="feature-card"> {# Changed class name #}
+                {# Optional: Add a graphic or icon here #}
+                <h3>Expert-Curated Resources</h3>
+                <p>Content developed and approved by experienced therapists.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section-bottom"> {# Changed class name #}
+        <h2>Ready to Start Your Journey?</h2>
+        <p>Sign up today and take the first step towards a healthier mind and body with TherapTube.</p> {# Added more text for better look #}
+        {% if not current_user.is_authenticated %}
+            <a href="{{ url_for('register') }}" class="btn btn-primary">Sign Up Now</a>
+        {% else %}
+            <a href="{{ url_for('pricing') }}" class="btn btn-primary">View Plans</a> {# Changed to btn-primary for consistency #}
+        {% endif %}
+    </section>
+</main>
+{% endblock %}
+
+
+
+
+
+
+
+
+{#
 {% extends 'base.html' %}
 {% block content %}
 <h1 class="section-title">All Media</h1>
-{% if current_user.is_authenticated and current_user.subscription and
-    current_user.subscription.current_period_end > now %}
-    <div class="media-grid">
-        {% for item in media %}
-        <div class="card">
-            <a href="{{ url_for('watch', media_id=item.id) }}">
-                <img src="{{ url_for('static', filename='uploads/thumbs/' + item.thumbnail) }}"
-                    alt="{{ item.title }}">
-                <div class="card-content">
-                    <p class="card-title">{{ item.title }}</p>
-                    <small class="card-meta">{{ item.target_condition }} · {{ item.otpf_domain }}</small>
+{% if current_user.is_authenticated %}
+    {% if current_user.role == 'therapist' %}
+        <div class="media-grid">
+            {% for item in media %}
+                <div class="card">
+                    <a href="{{ url_for('watch', media_id=item.id) }}">
+                        <img src="{{ url_for('static', filename='uploads/thumbs/' + item.thumbnail) }}" alt="{{ item.title }}">
+                        <div class="card-content">
+                            <p class="card-title">{{ item.title }}</p>
+                            <small class="card-meta">{{ item.target_condition }} · {{ item.otpf_domain }}</small>
+                        </div>
+                    </a>
                 </div>
-            </a>
+            {% else %}
+                <p>No media uploaded yet.</p>
+            {% endfor %}
         </div>
+    {% elif current_user.role == 'client' %}
+        {% if has_active_subscription(current_user) %}
+            <div class="media-grid">
+                {% for item in media %}
+                    <div class="card">
+                        <a href="{{ url_for('watch', media_id=item.id) }}">
+                            <img src="{{ url_for('static', filename='uploads/thumbs/' + item.thumbnail) }}" alt="{{ item.title }}">
+                            <div class="card-content">
+                                <p class="card-title">{{ item.title }}</p>
+                                <small class="card-meta">{{ item.target_condition }} · {{ item.otpf_domain }}</small>
+                            </div>
+                        </a>
+                    </div>
+                {% else %}
+                    <p>No media uploaded yet.</p>
+                {% endfor %}
+            </div>
         {% else %}
-            <p>No media uploaded yet.</p>
-        {% endfor %}
-    </div>
+            <div class="paywall-blur">
+                <p>🔒 This content requires an active subscription.</p>
+                <a class="btn" href="{{ url_for('pricing') }}">See plans</a>
+            </div>
+        {% endif %}
+    {% endif %}
 {% else %}
     <div class="paywall-blur">
-        <p>🔒  This feature requires an active subscription.</p>
-        <a class="btn" href="{{ url_for('pricing') }}">See plans</a>
+        <p>🔒 You must be logged in to view media content.</p>
+        <a class="btn" href="{{ url_for('login') }}">Log in</a>
+        <a class="btn" href="{{ url_for('register') }}">Register</a>
     </div>
 {% endif %}
 {% endblock %}
+#}
+
+
+
+
+
+
+
+{#
+{% if current_user.is_authenticated %}
+    {% if current_user. role == 'client' %}
+        {% if current_user.subscription and current_user.subscription.current_period_end > now %}
+            <div class="media-grid">
+                {% for item in media %}
+                    <div class="card">
+                        <a href="{{ url_for('watch', media_id=item.id) }}">
+                            <img src="{{ url_for('static', filename='uploads/thumbs/' + item.thumbnail) }}" alt="{{ item.title }}">
+                            <div class="card-content">
+                                <p class="card-title">{{ item.title }}</p>
+                                <small class="card-meta">{{ item.target_condition }} · {{ item.otpf_domain }}</small>
+                            </div>
+                        </a>
+                    </div>
+                {% else %}
+                    <p>No media uploaded yet.</p>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="paywall-blur">
+                <p>🔒 This feature requires an active subscription.</p>
+                <a class="btn" href="{{ url_for('pricing') }}">See plans</a>
+            </div>
+        {% endif %}
+
+    {% elif current_user.role == 'therapist' %}
+        <div class="media-grid">
+            {% for item in media %}
+                <div class="card">
+                    <a href="{{ url_for('watch', media_id=item.id) }}">
+                        <img src="{{ url_for('static', filename='uploads/thumbs/' + item.thumbnail) }}" alt="{{ item.title }}">
+                        <div class="card-content">
+                            <p class="card-title">{{ item.title }}</p>
+                            <small class="card-meta">{{ item.target_condition }} · {{ item.otpf_domain }}</small>
+                        </div>
+                    </a>
+                </div>
+            {% else %}
+                <p>No media uploaded yet.</p>
+            {% endfor %}
+        </div>
+
+    {% else %}
+        <div class="paywall-blur">
+            <p>🔒 You must be logged in as a client or therapist to view media.</p>
+        </div>
+    {% endif %}
+{% else %}
+    <div class="paywall-blur">
+        <p>🔒 You must be logged in to view media.</p>
+        <a class="btn" href="{{ url_for('login') }}">Log in</a>
+    </div>
+{% endif %}
+{% endblock %}
+#}
+
 
 
 

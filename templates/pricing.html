@@ -1,20 +1,123 @@
 {% extends "base.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='pricing_styles.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+
+<section class="pricing-section"> {# New main container class #}
+    <h1 class="pricing-title">Choose Your Path to Well-being</h1> {# New heading class #}
+    <p class="pricing-subtitle">Unlock full access to curated content and tools for your personalized journey.</p> {# New subtitle #}
+
+    <div class="plan-grid"> {# New grid container for plans #}
+        {% for p in plans %}
+            <div class="plan-card"> {# New card class #}
+                <div class="plan-header">
+                    <h3 class="plan-title">{{ p.name }}</h3> {# New title class #}
+                    <p class="plan-price">
+                        <span>GH¢ {{ "%.2f"|format(p.amount_pesewas/100) }}</span>
+                        <span class="plan-interval"> / {{ p.interval_days }} days</span>
+                    </p>
+                </div>
+                <div class="plan-body">
+                    <p class="plan-description">{{ p.description }}</p> {# New description class #}
+                    {# You can add more features here using list items for a better look #}
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check-circle"></i> Unlimited Content Access</li>
+                        <li><i class="fas fa-check-circle"></i> Progress Tracking</li>
+                        <li><i class="fas fa-check-circle"></i> Expert-curated Resources</li>
+                        {% if p.name == "Pro" %}
+                        <li><i class="fas fa-star"></i> Priority Support</li>
+                        <li><i class="fas fa-video"></i> Exclusive Therapy Contents</li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="plan-footer">
+                    <button
+                        class="btn plan-subscribe-btn" {# New button class #}
+                        data-plan="{{ p.id }}"
+                        data-amount="{{ p.amount_pesewas }}"
+                        data-name="{{ p.name }}">
+                        Subscribe Now
+                    </button>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script>
+document.querySelectorAll('.plan-subscribe-btn').forEach(btn => { // Updated selector
+    btn.onclick = () => {
+        const planId = btn.dataset.plan;
+        const handler = PaystackPop.setup({
+            key: "{{ pub_key }}",
+            email: "{{ current_user.email }}",
+            amount: btn.dataset.amount,
+            currency: "GHS",
+            channels: ['mobile_money', 'card'],
+            metadata: { custom_fields: [{ display_name: "Plan", value: btn.dataset.name }] },
+            callback: function(resp) {
+                fetch("/paystack/verify", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ ref: resp.reference, plan_id: planId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Payment successful! Your subscription is now active.");
+                        location.href = "{{ url_for('client_dashboard') }}";
+                    } else {
+                        alert("Payment verification failed: " + (data.error || "Unknown error."));
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error("Error during verification:", error);
+                    alert("An error occurred during payment verification. Please try again.");
+                    location.reload();
+                });
+            },
+            onClose: function() { alert("Payment window closed"); }
+        });
+        handler.openIframe();
+    };
+});
+</script>
+{% endblock %}
+
+
+
+
+
+
+
+
+{#
+{% extends "base.html" %}
 {% block content %}
 <h1>Select your plan</h1>
 <div class="plans">
 {% for p in plans %}
   <div class="card">
     <h3>{{ p.name }}</h3>
-    <p class="price">GH¢ {{ "%.2f"|format(p.amount_pesewas/100) }} / {{ p.interval_days }} days</p>
-    <button
-       class="btn pay-btn"
-       data-plan="{{ p.id }}"
-       data-amount="{{ p.amount_pesewas }}"
-       data-name="{{ p.name }}">
-       Subscribe
-    </button>
+    <p class="price">GH¢ {{ "%.2f"|format(p.amount_pesewas/100) }} / {{ p.interval_days }} days</p>
+    <p class="description">{{ p.description }}</p>
+      <button
+        class="btn pay-btn"
+        data-plan="{{ p.id }}"
+        data-amount="{{ p.amount_pesewas }}"
+        data-name="{{ p.name }}">
+        Subscribe
+      </button>
   </div>
 {% endfor %}
+
 </div>
 
 <script src="https://js.paystack.co/v1/inline.js"></script>
@@ -24,7 +127,9 @@ document.querySelectorAll('.pay-btn').forEach(btn=>{
     const planId = btn.dataset.plan;
     const handler = PaystackPop.setup({
       key: "{{ pub_key }}",
-      email: "{{ current_user.email if current_user.is_authenticated else '' }}",
+      // IMPORTANT: current_user.email will now be available because
+      // the new registration flow makes clients log in before coming here.
+      email: "skapeprah@gmail.com",
       amount: btn.dataset.amount,     // in pesewas
       currency: "GHS",
       channels: ['mobile_money','card'],
@@ -32,10 +137,55 @@ document.querySelectorAll('.pay-btn').forEach(btn=>{
       callback: function(resp){
           // hit server to verify & activate
           fetch("/paystack/verify",{
-             method:"POST",
-             headers:{'Content-Type':'application/json'},
-             body: JSON.stringify({ ref:resp.reference, plan_id:planId })
-          }).then(()=>location.href="/client");     // or success page
+            method:"POST",
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ ref:resp.reference, plan_id:planId })
+          })
+          .then(response => response.json()) // Parse the JSON response from your server
+          .then(data => {
+            if (data.success) {
+                alert("Payment successful! Your subscription is now active.");
+                location.href = "/index"; // Redirect to the index page (which now shows content)
+            } else {
+                // Display error message from the server if available
+                alert("Payment verification failed: " + (data.error || "Unknown error."));
+                location.reload(); // Reload the pricing page to allow retry
+            }
+          })
+          .catch(error => {
+            console.error("Error during verification:", error);
+            alert("An error occurred during payment verification. Please try again.");
+            location.reload();
+          });
+      },
+      onClose: function(){ alert("Payment window closed"); }
+    });
+    handler.openIframe();
+  };
+});
+</script>
+
+
+
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script>
+document.querySelectorAll('.pay-btn').forEach(btn=>{
+  btn.onclick = ()=>{
+    const planId = btn.dataset.plan;
+    const handler = PaystackPop.setup({
+      key: "{{ pub_key }}",
+      email: "{{ current_user.email if current_user.is_authenticated else 'skapeprah@gmail.com' }}",
+      amount: btn.dataset.amount,     // in pesewas
+      currency: "GHS",
+      channels: ['mobile_money','card'],
+      metadata: {custom_fields:[{display_name:"Plan", value:btn.dataset.name}]},
+      callback: function(resp){
+          // hit server to verify & activate
+          fetch("/paystack/verify",{
+            method:"POST",
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ ref:resp.reference, plan_id:planId })
+          }).then(()=>location.href="{{ url_for('index') }}");     // or success page
       },
       onClose: function(){ alert("Payment window closed"); }
     });
@@ -44,3 +194,56 @@ document.querySelectorAll('.pay-btn').forEach(btn=>{
 });
 </script>
 {% endblock %}
+#}
+
+
+
+{#
+{% extends "base.html" %}
+{% block content %}
+<h1>Select your plan</h1>
+<div class="plans">
+{% for p in plans %}
+  <div class="card">
+    <h3>{{ p.name }}</h3>
+    <p class="price">GH¢ {{ "%.2f"|format(p.amount_pesewas/100) }} / {{ p.interval_days }} days</p>
+    <button
+      class="btn pay-btn"
+      data-plan="{{ p.id }}"
+      data-amount="{{ p.amount_pesewas }}"
+      data-name="{{ p.name }}">
+      Subscribe
+    </button>
+  </div>
+{% endfor %}
+
+</div>
+
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script>
+document.querySelectorAll('.pay-btn').forEach(btn=>{
+  btn.onclick = ()=>{
+    const planId = btn.dataset.plan;
+    const handler = PaystackPop.setup({
+      key: "{{ pub_key }}",
+      email: "{{ current_user.email if current_user.is_authenticated else 'skapeprah@gmail.com' }}",
+      amount: btn.dataset.amount,     // in pesewas
+      currency: "GHS",
+      channels: ['mobile_money','card'],
+      metadata: {custom_fields:[{display_name:"Plan", value:btn.dataset.name}]},
+      callback: function(resp){
+          // hit server to verify & activate
+          fetch("/paystack/verify",{
+            method:"POST",
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ ref:resp.reference, plan_id:planId })
+          }).then(()=>location.href="/login");     // or success page
+      },
+      onClose: function(){ alert("Payment window closed"); }
+    });
+    handler.openIframe();
+  };
+});
+</script>
+{% endblock %}
+#}

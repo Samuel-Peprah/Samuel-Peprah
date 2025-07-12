@@ -1,0 +1,377 @@
+/* ==================================== */
+/* 0. Import Google Fonts for a Modern Look */
+/* ==================================== */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600;700&display=swap');
+
+/* ==================================== */
+/* 1. Base Overrides (if needed) & Root Integration */
+/* ==================================== */
+/* Use your existing :root and body from style.css */
+/* Make sure your :root variables are defined in style.css or copied here */
+/* 🌈 Design System with :root */
+:root {
+    --color-primary: #1e3c72;
+    --color-primary-light: #2a5298;
+    --color-accent: #9d50bb;
+    --color-accent-dark: #6e48aa;
+    --color-bg: #f9f9f9;
+    --color-text: #222;
+    --color-white: #fff;
+
+    --gradient-primary: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+    --gradient-accent: linear-gradient(135deg, var(--color-accent), var(--color-accent-dark));
+}
+
+/* 🛠️ Reset & Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    /* If you want different fonts specifically for the landing page */
+    font-family: 'Poppins', sans-serif;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+    background: var(--color-bg);
+    color: var(--color-text);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', sans-serif; /* A bolder, modern heading font */
+    color: var(--color-primary);
+}
+
+
+/* ==================================== */
+/* 2. Hero Section - Dynamic & Engaging */
+/* ==================================== */
+.hero-main-section {
+    background: var(--gradient-primary); /* Your primary gradient */
+    color: var(--color-white);
+    padding: var(--spacing-xl) var(--spacing-md);
+    display: flex;
+    flex-direction: row; /* Default: content on left, image on right */
+    align-items: center;
+    justify-content: space-between; /* Space out content and image */
+    gap: var(--spacing-lg);
+    text-align: left;
+    min-height: 600px; /* Ensure a decent height */
+    position: relative;
+    overflow: hidden;
+    isolation: isolate; /* Create new stacking context for pseudo-elements */
+}
+
+/* Abstract background shapes/graphics */
+.hero-main-section::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    left: -50px;
+    width: 200px;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    transform: rotate(45deg);
+    z-index: -1;
+    animation: float1 15s ease-in-out infinite alternate;
+}
+
+.hero-main-section::after {
+    content: '';
+    position: absolute;
+    bottom: -80px;
+    right: -80px;
+    width: 250px;
+    height: 250px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%;
+    transform: rotate(-30deg);
+    z-index: -1;
+    animation: float2 20s ease-in-out infinite alternate;
+}
+
+@keyframes float1 {
+    0% { transform: translate(0, 0) rotate(45deg); }
+    100% { transform: translate(20px, 30px) rotate(50deg); }
+}
+
+@keyframes float2 {
+    0% { transform: translate(0, 0) rotate(-30deg); }
+    100% { transform: translate(-20px, -20px) rotate(-35deg); }
+}
+
+
+.hero-intro-content {
+    flex: 1;
+    max-width: 600px;
+    z-index: 1; /* Keep content above background shapes */
+}
+
+.hero-intro-content h1 {
+    color: var(--color-white);
+    font-size: 4em; /* Larger heading */
+    margin-bottom: var(--spacing-md);
+    line-height: 1.1;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2); /* Subtle text shadow */
+}
+
+.hero-intro-content p {
+    font-size: 1.3em; /* Larger paragraph text */
+    margin-bottom: var(--spacing-lg);
+    opacity: 0.9;
+}
+
+.hero-action-buttons .btn {
+    margin-right: var(--spacing-md);
+    padding: 15px 30px; /* Larger buttons */
+    font-size: 1.1em;
+    border-radius: 50px; /* Pill-shaped buttons */
+}
+
+.hero-action-buttons .btn-primary {
+    background: var(--color-white); /* White button on dark background */
+    color: var(--color-primary);
+}
+
+.hero-action-buttons .btn-primary:hover {
+    background-color: #eee;
+    transform: translateY(-3px);
+}
+
+.hero-action-buttons .btn-secondary {
+    border: 2px solid var(--color-white);
+    color: var(--color-white);
+}
+
+.hero-action-buttons .btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-3px);
+}
+
+
+.hero-visual-area {
+    flex: 1;
+    max-width: 600px; /* Adjust based on image size */
+    text-align: center;
+    z-index: 1;
+}
+
+.hero-visual-area img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow-lg); /* More prominent shadow for hero image */
+    animation: fadeInScale 1.5s ease-out forwards; /* Fade in and scale animation */
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.8) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* ==================================== */
+/* 3. Features Section - Clean & Engaging Grid */
+/* ==================================== */
+.features-showcase {
+    padding: var(--spacing-xl) var(--spacing-md);
+    text-align: center;
+    background-color: var(--color-bg); /* Use light background */
+}
+
+.features-showcase h2 {
+    font-size: 3em;
+    margin-bottom: var(--spacing-lg);
+    color: var(--color-accent); /* Use accent color for this heading */
+}
+
+.features-grid-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Larger min-width for features */
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+}
+
+.feature-card {
+    background-color: var(--color-white);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow-md);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative; /* For subtle border animation */
+    overflow: hidden;
+}
+
+.feature-card::before { /* Subtle accent border effect */
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: var(--gradient-accent);
+    transform: translateY(-100%);
+    transition: transform 0.3s ease;
+}
+
+.feature-card:hover::before {
+    transform: translateY(0);
+}
+
+.feature-card:hover {
+    transform: translateY(-8px); /* More pronounced lift */
+    box-shadow: var(--box-shadow-lg); /* More prominent shadow */
+}
+
+.feature-card h3 {
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-sm);
+    font-size: 1.6em;
+}
+
+.feature-card p {
+    color: var(--color-text-light);
+    font-size: 1.05em;
+}
+
+/* Placeholder for potential icons/graphics in feature cards */
+.feature-icon {
+    font-size: 3em;
+    color: var(--color-accent);
+    margin-bottom: var(--spacing-md);
+}
+
+/* ==================================== */
+/* 4. Call to Action - Bold & Clear */
+/* ==================================== */
+.cta-section-bottom {
+    background: var(--gradient-accent); /* Your accent gradient */
+    color: var(--color-white);
+    padding: var(--spacing-xl) var(--spacing-md);
+    text-align: center;
+}
+
+.cta-section-bottom h2 {
+    color: var(--color-white);
+    font-size: 3em;
+    margin-bottom: var(--spacing-md);
+}
+
+.cta-section-bottom p {
+    font-size: 1.2em;
+    margin-bottom: var(--spacing-lg);
+    opacity: 0.9;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.cta-section-bottom .btn {
+    padding: 15px 40px; /* Even larger CTA button */
+    font-size: 1.2em;
+    border-radius: 50px; /* Pill-shaped */
+    background: var(--color-white);
+    color: var(--color-accent);
+}
+
+.cta-section-bottom .btn:hover {
+    background-color: #eee;
+    transform: translateY(-3px);
+}
+
+
+/* ==================================== */
+/* 5. Responsiveness */
+/* ==================================== */
+@media (max-width: 992px) {
+    .hero-main-section {
+        flex-direction: column-reverse; /* Image above content on smaller desktops */
+        text-align: center;
+    }
+
+    .hero-intro-content {
+        max-width: 90%;
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .hero-intro-content h1 {
+        font-size: 3.5em;
+    }
+
+    .hero-visual-area {
+        max-width: 80%;
+    }
+
+    .hero-action-buttons .btn {
+        margin: var(--spacing-sm) auto; /* Center buttons and give vertical spacing */
+        width: 80%; /* Make buttons wider */
+        display: block;
+    }
+
+    .features-grid-items {
+        grid-template-columns: 1fr; /* Stack features on smaller screens */
+    }
+
+    .feature-card {
+        max-width: 400px; /* Limit width of stacked cards */
+        margin: auto; /* Center them */
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-main-section {
+        padding: var(--spacing-lg) var(--spacing-md);
+        /* min-height removed for compatibility */
+    }
+
+    .hero-intro-content h1 {
+        font-size: 2.8em;
+    }
+
+    .hero-intro-content p {
+        font-size: 1.1em;
+    }
+
+    .features-showcase h2,
+    .cta-section-bottom h2 {
+        font-size: 2.2em;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-intro-content h1 {
+        font-size: 2.2em;
+    }
+
+    .hero-intro-content p {
+        font-size: 1em;
+    }
+
+    .hero-action-buttons .btn {
+        width: 95%; /* Almost full width buttons */
+    }
+
+    .features-showcase h2,
+    .cta-section-bottom h2 {
+        font-size: 1.8em;
+    }
+
+    .feature-card h3 {
+        font-size: 1.4em;
+    }
+
+    .cta-section-bottom .btn {
+        font-size: 1.1em;
+        padding: 12px 30px;
+    }
+}

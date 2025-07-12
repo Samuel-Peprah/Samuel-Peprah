@@ -1,0 +1,221 @@
+/* ==================================== */
+/* 0. Import Google Fonts (if not in base.html) */
+/* ==================================== */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600;700&display=swap');
+
+/* 🌈 Design System with :root */
+:root {
+    --color-primary: #1e3c72;
+    --color-primary-light: #2a5298;
+    --color-accent: #9d50bb;
+    --color-accent-dark: #6e48aa;
+    --color-bg: #f9f9f9;
+    --color-text: #222;
+    --color-white: #fff;
+
+    --gradient-primary: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+    --gradient-accent: linear-gradient(135deg, var(--color-accent), var(--color-accent-dark));
+}
+
+/* 🛠️ Reset & Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.6;
+}
+a {
+    text-decoration: none;
+    color: var(--color-primary);
+    transition: 0.3s ease;
+}
+a:hover {
+    color: var(--color-accent);
+}
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 1rem;
+}
+
+/* ==================================== */
+/* 1. Auth Section Layout (Consistent with Login) */
+/* ==================================== */
+.auth-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh; /* Ensure it takes up most of the viewport height */
+    padding: var(--spacing-lg) var(--spacing-md);
+    background: linear-gradient(135deg, var(--color-bg) 50%, rgba(255, 255, 255, 0.8) 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Subtle background overlay/pattern for visual interest */
+.auth-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        45deg,
+        rgba(var(--color-primary-light), 0.05),
+        rgba(var(--color-primary-light), 0.05) 10px,
+        transparent 10px,
+        transparent 20px
+    );
+    opacity: 0.2;
+    z-index: 0;
+}
+
+.auth-card {
+    background-color: var(--color-white);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow-lg); /* More pronounced shadow */
+    max-width: 450px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    z-index: 1; /* Ensure card is above background pattern */
+    animation: fadeIn 0.8s ease-out; /* Simple fade-in animation */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.auth-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2.5em;
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-xs);
+    font-weight: 700;
+}
+
+.auth-subtitle {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.1em;
+    color: var(--color-text-light);
+    margin-bottom: var(--spacing-lg);
+}
+
+/* ==================================== */
+/* 2. Form Styling (Consistent with Login) */
+/* ==================================== */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md); /* Space between form groups */
+}
+
+.form-group-custom {
+    text-align: left;
+}
+
+.form-group-custom label {
+    display: block;
+    margin-bottom: var(--spacing-xs);
+    font-weight: 600;
+    color: var(--color-text);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.95em;
+}
+
+.form-group-custom input[type="text"],
+.form-group-custom input[type="password"],
+.form-group-custom input[type="email"] {
+    width: 100%;
+    padding: 14px 15px; /* Larger padding for inputs */
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    font-size: 1em;
+    font-family: 'Poppins', sans-serif;
+    color: var(--color-text);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background-color: var(--color-white); /* Ensure white background */
+}
+
+.form-group-custom input[type="text"]:focus,
+.form-group-custom input[type="password"]:focus,
+.form-group-custom input[type="email"]:focus {
+    border-color: var(--color-accent); /* Accent color on focus */
+    box-shadow: 0 0 0 4px rgba(var(--color-accent), 0.2); /* Soft glow effect */
+    outline: none;
+}
+
+/* ==================================== */
+/* 3. Button Styling (Consistent with Login) */
+/* ==================================== */
+.auth-submit-btn {
+    background: var(--gradient-primary); /* Use primary gradient for submit button */
+    color: var(--color-white);
+    padding: 15px 25px; /* Generous padding */
+    border: none;
+    border-radius: 50px; /* Pill-shaped button */
+    font-size: 1.15em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    width: 100%; /* Full width */
+    margin-top: var(--spacing-md); /* Space above button */
+    font-family: 'Montserrat', sans-serif;
+}
+
+.auth-submit-btn:hover {
+    background: var(--color-primary-light); /* Darker blue on hover */
+    transform: translateY(-3px); /* Lift effect */
+    box-shadow: var(--box-shadow-sm); /* Subtle shadow */
+}
+
+/* ==================================== */
+/* 4. Other Text Elements (Consistent with Login) */
+/* ==================================== */
+.auth-switch-link {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.95em;
+    color: var(--color-text-light);
+    margin-top: var(--spacing-sm);
+}
+
+.auth-switch-link a {
+    color: var(--color-accent);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.auth-switch-link a:hover {
+    color: var(--color-accent-dark);
+    text-decoration: underline;
+}
+
+/* ==================================== */
+/* 5. Responsiveness (Consistent with Login) */
+/* ==================================== */
+@media (max-width: 500px) {
+    .auth-card {
+        padding: var(--spacing-md);
+        margin: var(--spacing-md); /* Add margin on very small screens */
+    }
+    .auth-title {
+        font-size: 2em;
+    }
+    .auth-subtitle {
+        font-size: 1em;
+    }
+    .auth-submit-btn {
+        padding: 12px 20px;
+        font-size: 1em;
+    }
+}

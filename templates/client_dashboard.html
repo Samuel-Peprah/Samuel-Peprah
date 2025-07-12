@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="section-title">Client Dashboard: All Media</h1>
+
+{# Check if the client has an active subscription #}
+{% if has_subscription %}
+    <div class="media-grid">
+        {% for item in media %}
+            <div class="card">
+                <a href="{{ url_for('watch', media_id=item.id) }}">
+                    <img src="{{ url_for('static', filename='uploads/thumbs/' + item.thumbnail) }}" alt="{{ item.title }}">
+                    <div class="card-content">
+                        <p class="card-title">{{ item.title }}</p>
+                        <small class="card-meta">{{ item.target_condition }} · {{ item.otpf_domain }}</small>
+                    </div>
+                </a>
+            </div>
+        {% else %}
+            <p>No media available yet. Please check back later for new content!</p>
+        {% endfor %}
+    </div>
+{% else %}
+    {# Client is authenticated but subscription is not active #}
+    <div class="paywall-blur">
+        <p>🔒 This content requires an active subscription.</p>
+        <a class="btn btn-primary" href="{{ url_for('pricing') }}">See plans</a>
+    </div>
+{% endif %}
+{% endblock %}

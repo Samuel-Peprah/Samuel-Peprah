@@ -1,0 +1,234 @@
+/* ==================================== */
+/* 0. Import Google Fonts for a Modern Look */
+/* ==================================== */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600;700&display=swap');
+
+/* 🌈 Design System with :root */
+:root {
+    --color-primary: #1e3c72;
+    --color-primary-light: #2a5298;
+    --color-accent: #9d50bb;
+    --color-accent-dark: #6e48aa;
+    --color-bg: #f9f9f9;
+    --color-text: #222;
+    --color-white: #fff;
+
+    --gradient-primary: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+    --gradient-accent: linear-gradient(135deg, var(--color-accent), var(--color-accent-dark));
+}
+
+/* 🛠️ Reset & Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+/* ==================================== */
+/* 1. Pricing Section Layout */
+/* ==================================== */
+.pricing-section {
+    padding: var(--spacing-xl) var(--spacing-md);
+    text-align: center;
+    background-color: var(--color-bg); /* Use your light background */
+}
+
+.pricing-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 3.5em;
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-sm);
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.pricing-title::after { /* Underline effect for title */
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 5px;
+    background: var(--gradient-accent);
+    border-radius: 2px;
+}
+
+.pricing-subtitle {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.3em;
+    color: var(--color-text-light);
+    margin-bottom: var(--spacing-lg);
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.5;
+}
+
+.plan-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive grid */
+    gap: var(--spacing-lg); /* Space between cards */
+    justify-content: center; /* Center cards in the grid */
+    margin-top: var(--spacing-lg);
+}
+
+/* ==================================== */
+/* 2. Individual Plan Card */
+/* ==================================== */
+.plan-card {
+    background-color: var(--color-white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow-md); /* Subtle initial shadow */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid var(--color-border); /* Subtle border */
+    position: relative; /* For the ribbon effect */
+}
+
+.plan-card:hover {
+    transform: translateY(-10px); /* Lift effect on hover */
+    box-shadow: var(--box-shadow-lg); /* More pronounced shadow on hover */
+}
+
+/* Header Section of the Card */
+.plan-header {
+    background: var(--gradient-primary); /* Primary gradient for header */
+    color: var(--color-white);
+    padding: var(--spacing-lg) var(--spacing-md);
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.plan-card:nth-child(2) .plan-header { /* Style for a potential "Popular" plan */
+    background: var(--gradient-accent); /* Accent gradient for the middle/popular plan */
+}
+
+.plan-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2em;
+    margin-bottom: var(--spacing-xs);
+    color: inherit; /* Inherit color from header (white) */
+}
+
+.plan-price {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2.8em;
+    font-weight: 700;
+    line-height: 1;
+    display: block; /* Make it block for better spacing */
+}
+
+.plan-price span {
+    display: inline-block;
+}
+
+.plan-interval {
+    font-size: 0.6em; /* Smaller for interval text */
+    opacity: 0.8;
+    margin-left: 5px;
+}
+
+/* Body Section of the Card */
+.plan-body {
+    padding: var(--spacing-md);
+    flex-grow: 1; /* Allows body to take available space */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Space out description and features */
+}
+
+.plan-description {
+    font-size: 1em;
+    color: var(--color-text-light);
+    margin-bottom: var(--spacing-md);
+    line-height: 1.5;
+}
+
+.plan-features {
+    list-style: none; /* Remove default list style */
+    padding: 0;
+    margin-bottom: var(--spacing-md);
+    text-align: left;
+}
+
+.plan-features li {
+    font-size: 0.95em;
+    color: var(--color-text);
+    margin-bottom: var(--spacing-xs);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.plan-features li i { /* For Font Awesome check icons */
+    color: var(--color-success); /* Green checkmark */
+    font-size: 1.1em;
+}
+
+/* Footer Section of the Card */
+.plan-footer {
+    padding: var(--spacing-md);
+    text-align: center;
+}
+
+.plan-subscribe-btn {
+    background: var(--gradient-accent); /* Accent gradient for the button */
+    color: var(--color-white);
+    width: 100%; /* Make button full width of card footer */
+    padding: 15px 0; /* Larger padding */
+    font-size: 1.1em;
+    font-weight: 600;
+    border-radius: 50px; /* Pill-shaped button */
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.plan-subscribe-btn:hover {
+    background: var(--color-accent-dark); /* Darker accent on hover */
+    transform: translateY(-3px);
+    box-shadow: var(--box-shadow-sm); /* Subtle shadow on hover */
+}
+
+/* ==================================== */
+/* 3. Responsive Adjustments */
+/* ==================================== */
+@media (max-width: 768px) {
+    .pricing-title {
+        font-size: 2.8em;
+    }
+    .pricing-subtitle {
+        font-size: 1.1em;
+    }
+    .plan-grid {
+        grid-template-columns: 1fr; /* Stack cards on mobile */
+        max-width: 400px; /* Limit width of stacked cards */
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .plan-card {
+        margin-bottom: var(--spacing-lg); /* Add space between stacked cards */
+    }
+}
+
+@media (max-width: 480px) {
+    .pricing-title {
+        font-size: 2.2em;
+    }
+    .pricing-subtitle {
+        font-size: 1em;
+    }
+    .plan-price {
+        font-size: 2.2em;
+    }
+    .plan-title {
+        font-size: 1.8em;
+    }
+    .plan-subscribe-btn {
+        padding: 12px 0;
+        font-size: 1em;
+    }
+}
