@@ -1,43 +1,43 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='register_styles.css') }}">
-{# Ensure Montserrat and Poppins are loaded, either here or in your base.html #}
+<link rel="stylesheet" href="{{ url_for('static', filename='register.css') }}">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 
-<section class="auth-section"> {# Main container for authentication forms #}
-    <div class="auth-card"> {# Card-like container for the form #}
-        <h2 class="auth-title">Create Your Account</h2> {# New title class #}
-        <p class="auth-subtitle">Join TherapTube and start your personalized journey</p> {# Added subtitle #}
+<section class="auth-section">
+    <div class="auth-card">
+        <h2 class="auth-title">Create Your Account</h2>
+        <p class="auth-subtitle">Join TherapTube and start your personalized journey</p>
 
-        <form method="post" class="auth-form"> {# Reusing auth-form class #}
+        <form method="post" class="auth-form">
             <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
             
-            <div class="form-group-custom"> {# Reusing form-group-custom #}
+            <div class="form-group-custom">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" required autocomplete="username">
             </div>
 
-            <div class="form-group-custom"> {# Reusing form-group-custom #}
+            <div class="form-group-custom">
                 <label for="email">Email (optional)</label>
                 <input type="email" id="email" name="email" autocomplete="email">
             </div>
 
-            <div class="form-group-custom"> {# Reusing form-group-custom #}
+            <div class="form-group-custom">
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" required autocomplete="new-password">
             </div>
 
-            <div class="form-group-custom"> {# Reusing form-group-custom #}
+            <div class="form-group-custom">
                 <label for="invite_token">Invite Token (only if therapist)</label>
                 <input type="text" id="invite_token" name="invite_token" placeholder="Leave blank if client" autocomplete="off">
             </div>
 
-            <button type="submit" class="auth-submit-btn">Register</button> {# Reusing auth-submit-btn #}
+            <button type="submit" class="auth-submit-btn">Register</button>
         </form>
 
-        <p class="auth-switch-link">Already have an account? <a href="{{ url_for('login') }}">Log in</a></p> {# Reusing auth-switch-link #}
+        <p class="auth-switch-link">Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
+        <p class="auth-switch-link"><a href="{{ url_for('index') }}">Go Home</a></p>
     </div>
 </section>
 {% endblock %}

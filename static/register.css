@@ -1,0 +1,231 @@
+/* ==================================== */
+/* 0. Import Google Fonts for a Modern Look */
+/* ==================================== */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600;700&display=swap');
+
+/* 🌈 Design System with :root */
+:root {
+    --color-primary: #1e3c72;
+    --color-primary-light: #2a5298;
+    --color-accent: #9d50bb;
+    --color-accent-dark: #6e48aa;
+    --color-bg: #f9f9f9;
+    --color-text: #222;
+    --color-white: #fff;
+    --color-input-border: #ddd;
+    --color-input-focus: var(--color-primary-light);
+    --color-link: var(--color-primary);
+    --color-link-hover: var(--color-accent);
+
+    --gradient-primary: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+    --gradient-accent: linear-gradient(135deg, var(--color-accent), var(--color-accent-dark));
+
+    /* Spacing */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-xxl: 64px;
+
+    /* Typography */
+    --font-heading: 'Montserrat', sans-serif;
+    --font-body: 'Poppins', sans-serif;
+
+    /* Border Radius */
+    --border-radius-sm: 4px;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+    --border-radius-pill: 50px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+
+    /* Transitions */
+    --transition-fast: all 0.2s ease-in-out;
+    --transition-medium: all 0.3s ease-in-out;
+}
+
+/* 🛠️ Reset & Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+/* ==================================== */
+/* 1. Auth Section Wrapper */
+/* ==================================== */
+.auth-section-wrapper {
+    width: 100%;
+    max-width: 500px; /* Max width for the card container */
+    margin: auto; /* Ensures centering if not using body flex */
+    padding: var(--spacing-md); /* Internal padding for the wrapper */
+}
+
+/* ==================================== */
+/* 2. Auth Card Container */
+/* ==================================== */
+.auth-card-container {
+    background-color: var(--color-white);
+    border-radius: var(--border-radius-lg); /* Rounded corners for the card */
+    box-shadow: var(--shadow-lg); /* Prominent shadow */
+    padding: var(--spacing-xl); /* Generous padding inside the card */
+    text-align: center;
+    border: 1px solid var(--color-input-border); /* Subtle border */
+}
+
+.auth-card-title {
+    font-size: 2em; /* Larger title */
+    font-weight: 700;
+    margin-bottom: var(--spacing-sm);
+    color: var(--color-primary);
+}
+
+.auth-card-subtitle {
+    font-size: 1.1em;
+    color: var(--color-text);
+    opacity: 0.8;
+    margin-bottom: var(--spacing-lg);
+}
+
+/* ==================================== */
+/* 3. Auth Form */
+/* ==================================== */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md); /* Space between form groups */
+}
+
+.form-group {
+    text-align: left;
+    margin-bottom: var(--spacing-sm); /* Space between form groups */
+}
+
+.form-label {
+    display: block;
+    font-size: 0.95em;
+    color: var(--color-text);
+    margin-bottom: var(--spacing-xs);
+    font-weight: 600;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--color-input-border);
+    border-radius: var(--border-radius-md);
+    font-size: 1em;
+    color: var(--color-text);
+    transition: var(--transition-medium);
+    outline: none;
+}
+
+.form-input::placeholder {
+    color: #aaa;
+}
+
+.form-input:focus {
+    border-color: var(--color-input-focus);
+    box-shadow: 0 0 0 3px rgba(var(--color-primary-light), 0.2); /* Subtle focus ring */
+}
+
+.auth-submit-button {
+    background: var(--gradient-primary);
+    color: var(--color-white);
+    padding: 1rem 2rem;
+    border-radius: var(--border-radius-pill); /* Pill-shaped button */
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-medium);
+    border: none;
+    margin-top: var(--spacing-md); /* Space above the button */
+    box-shadow: var(--shadow-md);
+}
+
+.auth-submit-button:hover {
+    background: var(--color-primary-light);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* ==================================== */
+/* 4. Switch Link */
+/* ==================================== */
+.auth-switch-text {
+    font-size: 0.95em;
+    color: var(--color-text);
+    margin-top: var(--spacing-lg); /* Space above the link */
+}
+
+.auth-switch-link {
+    font-weight: 600;
+}
+
+/* ==================================== */
+/* 5. Responsive Adjustments */
+/* ==================================== */
+@media (max-width: 768px) {
+    .auth-card-container {
+        padding: var(--spacing-lg); /* Reduce padding on smaller screens */
+    }
+
+    .auth-card-title {
+        font-size: 1.8em;
+    }
+
+    .auth-card-subtitle {
+        font-size: 1em;
+    }
+
+    .form-group {
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .form-input {
+        padding: 0.7rem 0.9rem;
+        font-size: 0.95em;
+    }
+
+    .auth-submit-button {
+        padding: 0.9rem 1.8rem;
+        font-size: 1em;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-card-container {
+        border-radius: var(--border-radius-md); /* Slightly less rounded */
+        box-shadow: var(--shadow-sm); /* Lighter shadow */
+        padding: var(--spacing-md);
+    }
+
+    .auth-card-title {
+        font-size: 1.5em;
+    }
+
+    .auth-card-subtitle {
+        font-size: 0.9em;
+        margin-bottom: var(--spacing-md);
+    }
+
+    .form-input {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.9em;
+    }
+
+    .auth-submit-button {
+        padding: 0.8rem 1.5rem;
+        font-size: 0.95em;
+    }
+
+    .auth-switch-text {
+        font-size: 0.85em;
+        margin-top: var(--spacing-md);
+    }
+}

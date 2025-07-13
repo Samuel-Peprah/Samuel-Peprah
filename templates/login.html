@@ -2,34 +2,83 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='login_styles.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
 {# Ensure Montserrat and Poppins are loaded, either here or in your base.html #}
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
+<section class="auth-section-wrapper"> {# Main wrapper for the entire auth page #}
+    <div class="auth-card-container"> {# Card-like container for the form #}
+        <h2 class="auth-card-title">Welcome Back</h2>
+        <p class="auth-card-subtitle">Log in to your TherapTube account</p>
 
-<section class="auth-section"> {# Main container for authentication forms #}
-    <div class="auth-card"> {# Card-like container for the form #}
-        <h2 class="auth-title">Welcome Back</h2> {# New title class #}
-        <p class="auth-subtitle">Log in to your TherapTube account</p> {# Added subtitle #}
-
-        <form method="post" class="auth-form"> {# New form class #}
+        <form method="post" class="auth-form">
             <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 
-            <div class="form-group-custom"> {# New group for label+input #}
+            <div class="form-group"> {# Standardized form-group #}
+                <label for="username" class="form-label">Username</label>
+                <input type="text" id="username" name="username" class="form-input" placeholder="Your username" required autocomplete="username">
+            </div>
+
+            <div class="form-group"> {# Standardized form-group #}
+                <label for="password" class="form-label">Password</label>
+                <input type="password" id="password" name="password" class="form-input" placeholder="Your password" required autocomplete="current-password">
+            </div>
+
+            <div class="form-options"> {# Container for remember me and forgot password #}
+                <div class="checkbox-group">
+                    <input type="checkbox" id="remember_me" name="remember_me" class="form-checkbox">
+                    <label for="remember_me" class="form-checkbox-label">Keep me signed in</label>
+                </div>
+            </div>
+
+            <button type="submit" class="auth-submit-button">Log in</button>
+        </form>
+
+        <p class="auth-demo-text">Demo account &rarr; Client: <strong class="demo-credentials">client/pass</strong></p>
+        <p class="auth-switch-text">Don't have an account? <a href="{{ url_for('register') }}" class="auth-switch-link">Sign Up</a></p>
+        <p class="auth-switch-text"><a href="{{ url_for('index') }}" class="auth-switch-link">Go Home</a></p>
+    </div>
+</section>
+{% endblock %}
+
+
+
+
+
+
+
+{#
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='login_styles.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+
+<section class="auth-section">
+    <div class="auth-card">
+        <h2 class="auth-title">Welcome Back</h2>
+        <p class="auth-subtitle">Log in to your TherapTube account</p>
+
+        <form method="post" class="auth-form">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group-custom">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" required autocomplete="username">
             </div>
 
-            <div class="form-group-custom"> {# New group for label+input #}
+            <div class="form-group-custom">
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" required autocomplete="current-password">
             </div>
 
-            <button type="submit" class="auth-submit-btn">Log in</button> {# New button class #}
+            <button type="submit" class="auth-submit-btn">Log in</button>
         </form>
 
-        <p class="auth-demo-text">Demo account → Client: <strong>client/pass</strong></p> {# New demo text class #}
-        <p class="auth-switch-link">Don't have an account? <a href="{{ url_for('register') }}">Sign Up</a></p> {# Added signup link #}
+        <p class="auth-demo-text">Demo account → Client: <strong>client/pass</strong></p>
+        <p class="auth-switch-link">Don't have an account? <a href="{{ url_for('register') }}">Sign Up</a></p>
     </div>
 </section>
 {% endblock %}
+#}

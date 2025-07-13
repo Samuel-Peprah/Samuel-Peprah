@@ -1,13 +1,160 @@
 {% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='watch.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<div class="watch-page-container">
+    <div class="main-content-area">
+        <h1 class="media-title">{{ media.title }}</h1>
+
+        {% if current_user.is_authenticated and (current_user.role == 'therapist' or has_active_subscription(current_user)) %}
+            {# User is a therapist OR a client with an active subscription #}
+            <div class="media-player-wrapper">
+                {% if media.filename.lower().endswith(('png','jpg','jpeg','gif')) %}
+                    <img src="{{ url_for('static', filename='uploads/' + media.filename) }}" alt="{{ media.title }}" class="media-display-image">
+                {% else %}
+                    <div class="video-player-container">
+                        <video
+                            id="mainVideo"
+                            controls
+                            poster="{{ url_for('static', filename='uploads/thumbs/' + media.thumbnail) }}"
+                            class="responsive-video">
+                            {# The /stream route is already protected on the server-side #}
+                            <source src="{{ url_for('stream', fname=media.filename) }}" type="video/mp4">
+                            Your browser does not support HTML5 video.
+                        </video>
+                    </div>
+                {% endif %}
+            </div>
+
+            {# Mark as Completed button - now also contingent on active subscription for clients #}
+            {% if current_user.is_authenticated and current_user.role == 'client' and has_active_subscription(current_user) %}
+                <form action="{{ url_for('mark_complete', media_id=media.id) }}" method="post" class="mark-complete-form">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn-mark-complete">✅ Mark as Completed</button>
+                </form>
+            {% endif %}
+
+        {% elif current_user.is_authenticated and current_user.role == 'client' and not has_active_subscription(current_user) %}
+            {# User is an authenticated client but DOES NOT have an active subscription #}
+            <div class="paywall-content-area">
+                <div class="paywall-message-large">
+                    <p class="paywall-text-large">🔒 This content requires an active subscription.</p>
+                    <a class="btn-paywall-action" href="{{ url_for('pricing') }}">See Plans</a>
+                </div>
+            </div>
+        {% else %}
+            {# User is not authenticated at all #}
+            <div class="paywall-content-area">
+                <div class="paywall-message-large">
+                    <p class="paywall-text-large">🔒 You must be logged in to view this media.</p>
+                    <div class="paywall-actions">
+                        <a class="btn-paywall-action" href="{{ url_for('login') }}">Log in</a>
+                        <a class="btn-paywall-action" href="{{ url_for('register') }}">Register</a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="media-info-section">
+            <p class="media-description" id="desc-{{ media.id }}">
+                {{ media.description }}
+            </p>
+            <button class="description-toggle-button" data-target="desc-{{ media.id }}">
+                See more
+            </button>
+
+            <ul class="media-metadata-list">
+                <li><strong>Category:</strong> <span>{{ media.category }}</span></li>
+                <li><strong>Domain:</strong> <span>{{ media.otpf_domain }}</span></li>
+                <li><strong>FOR:</strong> <span>{{ media.for_name }}</span></li>
+                <li><strong>Condition:</strong> <span>{{ media.target_condition }}</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <aside class="related-media-sidebar">
+        <h3 class="sidebar-title">Related Videos</h3>
+        <div class="related-media-list">
+            {% for item in related %}
+                <a href="{{ url_for('watch', media_id=item.id) }}" class="related-media-card">
+                    <div class="related-thumbnail-wrapper">
+                        <img src="{{ url_for('static', filename='uploads/thumbs/' + item.thumbnail) }}" alt="{{ item.title }}">
+                    </div>
+                    <div class="related-content">
+                        <p class="related-title">{{ item.title }}</p>
+                        <small class="related-meta">{{ item.target_condition }} · {{ item.otpf_domain }}</small>
+                    </div>
+                </a>
+            {% else %}
+                <p class="no-related-message">No related videos found.</p>
+            {% endfor %}
+        </div>
+    </aside>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const video = document.getElementById("mainVideo");
+        if (video) {
+            const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+            if (isMobile) {
+                video.setAttribute("playsinline", "");
+                video.setAttribute("webkit-playsinline", ""); // for iOS Safari
+                // video.style.maxHeight = "50vh"; // This can be handled by CSS for better responsiveness
+            }
+        }
+
+        // Description toggle logic
+        document.querySelectorAll(".description-toggle-button").forEach(btn => {
+            const para = document.getElementById(btn.dataset.target);
+
+            if (!para) return;
+
+            // Apply initial clamping and check if toggle is needed
+            // This requires CSS to initially clamp the description
+            // For a more reliable check, consider using a temporary element or a library
+            // For now, we'll assume CSS handles the initial clamping
+            const lineHeight = parseFloat(getComputedStyle(para).lineHeight);
+            const maxHeight = lineHeight * 3; // Assuming 3 lines is the default clamped height
+
+            if (para.scrollHeight <= maxHeight + 2) { // +2 for minor pixel variations
+                btn.style.display = "none";
+                para.classList.add('no-overflow'); // Add a class to prevent overflow hidden if not needed
+            } else {
+                para.classList.add('clamped'); // Add a class to indicate it's clamped
+            }
+
+
+            btn.addEventListener("click", () => {
+                para.classList.toggle("clamped"); // Toggle the clamped class
+                btn.textContent = para.classList.contains("clamped")
+                                    ? "See more"
+                                    : "See less";
+            });
+        });
+    });
+</script>
+{% endblock %}
+
+
+
+
+
+
+
+
+{#
+{% extends 'base.html' %}
 {% block content %}
 
 <div class="watch-container">
     <div class="main-player">
         <h1>{{ media.title }}</h1>
 
-        {# Logic for displaying content based on user role and subscription status #}
         {% if current_user.is_authenticated and (current_user.role == 'therapist' or has_active_subscription(current_user)) %}
-            {# User is a therapist OR a client with an active subscription #}
             {% if media.filename.lower().endswith(('png','jpg','jpeg','gif')) %}
                 <img src="{{ url_for('static', filename='uploads/' + media.filename) }}" alt="{{ media.title }}">
             {% else %}
@@ -17,28 +164,24 @@
                         controls
                         poster="{{ url_for('static', filename='uploads/thumbs/' + media.thumbnail) }}"
                         class="responsive-video">
-                        {# The /stream route is already protected on the server-side #}
                         <source src="{{ url_for('stream', fname=media.filename) }}" type="video/mp4">
                         Your browser does not support HTML5 video.
                     </video>
                 </div>
             {% endif %}
-
-            {# Mark as Completed button - now also contingent on active subscription for clients #}
             {% if current_user.is_authenticated and current_user.role == 'client' and has_active_subscription(current_user) %}
                 <form action="{{ url_for('mark_complete', media_id=media.id) }}" method="post" class="mark-complete-form">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
                     <button type="submit">✅ Mark as Completed</button>
                 </form>
             {% endif %}
 
         {% elif current_user.is_authenticated and current_user.role == 'client' and not has_active_subscription(current_user) %}
-            {# User is an authenticated client but DOES NOT have an active subscription #}
             <div class="paywall-blur paywall-on-watch-page">
                 <p>🔒 This content requires an active subscription.</p>
                 <a class="btn" href="{{ url_for('pricing') }}">See plans</a>
             </div>
         {% else %}
-            {# User is not authenticated at all #}
             <div class="paywall-blur paywall-on-watch-page">
                 <p>🔒 You must be logged in to view this media.</p>
                 <a class="btn" href="{{ url_for('login') }}">Log in</a>
@@ -81,7 +224,7 @@
     </aside>
 </div>
 
-<script>
+<!-- <script>
     document.addEventListener("DOMContentLoaded", function () {
         const video = document.getElementById("mainVideo");
         // Ensure video element exists before trying to access its properties or methods
@@ -120,14 +263,15 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.addEventListener("click", () => {
             para.classList.toggle("expanded");
             btn.textContent = para.classList.contains("expanded")
-                                  ? "See less"
-                                  : "See more";
+                                    ? "See less"
+                                    : "See more";
         });
     });
 
 });
-</script>
+</script> -->
 {% endblock %}
+#}
 
 
 

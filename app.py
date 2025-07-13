@@ -605,6 +605,7 @@ def make_thumbnail_ffmpeg(video_path: str, thumb_path: str, time_point="00:00:01
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    current_utc_year = datetime.now(timezone.utc).year
     if current_user.is_authenticated:
         return redirect(url_for('index'))
 
@@ -631,7 +632,7 @@ def register():
             for error in errors:
                 flash(error, 'danger')
             # Render the template again, preserving user input
-            return render_template('register.html', taxonomy=TAXONOMY,
+            return render_template('register.html', taxonomy=TAXONOMY, current_year=current_utc_year,
                                     username=username, email=email, invite_token=token)
 
 
@@ -659,7 +660,7 @@ def register():
             # <--- THE KEY CHANGE HERE: Redirect therapist to their dedicated dashboard
             return redirect(url_for('therapist_dashboard'))
 
-    return render_template('register.html', taxonomy=TAXONOMY)
+    return render_template('register.html', taxonomy=TAXONOMY, current_year=current_utc_year)
 
 
 
@@ -700,6 +701,7 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    current_utc_year = datetime.now(timezone.utc).year
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -721,7 +723,7 @@ def login():
                 return redirect(url_for('therapist_dashboard')) # <--- UPDATED: Therapists go to their new dashboard
         else:
             flash('Invalid credentials', 'danger')
-    return render_template('login.html', taxonomy=TAXONOMY)
+    return render_template('login.html', taxonomy=TAXONOMY, current_year=current_utc_year)
 
 
 @app.cli.command("gen-invite")
@@ -860,6 +862,7 @@ def admin_dashboard():
 @app.route('/media/<int:media_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_media(media_id):
+    current_utc_year = datetime.now(timezone.utc).year
     media = Media.query.get_or_404(media_id)
 
     # Only allow the uploader or therapist role to edit
@@ -878,7 +881,7 @@ def edit_media(media_id):
         flash('Media updated successfully.', 'success') # Added category
         return redirect(url_for('therapist_dashboard')) # <--- UPDATED: Redirect to therapist dashboard
 
-    return render_template('edit_media.html', media=media, taxonomy=TAXONOMY)
+    return render_template('edit_media.html', media=media, taxonomy=TAXONOMY, current_year=current_utc_year)
 
 
 # app.py (Modified delete_media route)
@@ -1142,6 +1145,7 @@ def delete_media(media_id):
 @app.route('/upload', methods=['GET', 'POST'])
 @login_required
 def upload():
+    current_utc_year = datetime.now(timezone.utc).year
     # Ensure only therapists can upload
     if current_user.role != 'therapist':
         flash('Only therapists can upload.', 'danger') # Added 'danger' category for consistency
@@ -1250,7 +1254,7 @@ def upload():
             flash('No file selected for upload.', 'warning')
             return redirect(url_for('upload'))
 
-    return render_template('upload.html', taxonomy=TAXONOMY)
+    return render_template('upload.html', taxonomy=TAXONOMY, current_year=current_utc_year)
 
 
 
@@ -1277,6 +1281,7 @@ def upload():
 @login_required # Ensure user is logged in
 @subscription_required # Ensure user has an active subscription (if client)
 def search():
+    current_utc_year = datetime.now(timezone.utc).year
     # The subscription_required decorator will handle redirection for unsubscribed clients.
     # For therapists, the decorator will simply pass through.
 
@@ -1297,7 +1302,7 @@ def search():
         query = query.filter_by(otpf_domain=otpf_domain)
 
     results = query.all()
-    return render_template('search.html', media=results, query=q, taxonomy=TAXONOMY)
+    return render_template('search.html', media=results, query=q, taxonomy=TAXONOMY, current_year=current_utc_year)
 
 # @app.route('/media/<int:media_id>')
 # def watch(media_id):

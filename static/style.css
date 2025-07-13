@@ -261,7 +261,7 @@ a:hover {
 }
 
 /* Sticky footer setup */
-.sticky-footer {
+/* .sticky-footer {
   position: fixed;
   bottom: 0;
   left: 0;
@@ -273,7 +273,7 @@ a:hover {
   font-size: 0.9rem;
   z-index: 1000;
   box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
-}
+} */
 
 /* Push content up so it doesn’t hide behind footer */
 .container {
@@ -1000,6 +1000,7 @@ h2 {
 .description {
     display: -webkit-box;
     -webkit-line-clamp: 3;   /* ⬅️ how many lines when collapsed */
+    line-clamp: 3;           /* Standard property for compatibility */
     -webkit-box-orient: vertical;
     overflow: hidden;
     transition: max-height .3s ease;
@@ -1008,6 +1009,7 @@ h2 {
 
 .description.expanded {
     -webkit-line-clamp: unset;
+    line-clamp: unset;
     max-height: 100%;
 }
 

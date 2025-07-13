@@ -1,4 +1,79 @@
+{% extends 'base.html' %}
 
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='upload.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<section class="upload-section-wrapper">
+    <div class="upload-card-container">
+        <h2 class="upload-card-title">Upload New Media</h2>
+        <p class="upload-card-subtitle">Expand the TherapTube library with valuable resources.</p>
+
+        <form method="post" enctype="multipart/form-data" class="upload-form">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group">
+                <label for="title" class="form-label">Title</label>
+                <input type="text" id="title" name="title" class="form-input" placeholder="e.g., Understanding Traumatic Brain Injury" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description" class="form-label">Description</label>
+                <textarea id="description" name="description" class="form-textarea" rows="4" placeholder="Provide a detailed description of the media content."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="category" class="form-label">Category</label>
+                <input type="text" id="category" name="category" class="form-input" placeholder="e.g., Educational, Exercise, Mindfulness">
+            </div>
+
+            <div class="form-group">
+                <label for="otpf_domain" class="form-label">OTPF Domain</label>
+                <select id="otpf_domain" name="otpf_domain" class="form-select" required>
+                    {% for d in taxonomy.otpf_domains %}
+                        <option value="{{ d }}">{{ d }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="for_name" class="form-label">FOR (Frame of Reference)</label>
+                <select id="for_name" name="for_name" class="form-select" required>
+                    {% for f in taxonomy.fors %}
+                        <option value="{{ f }}">{{ f }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="target_condition" class="form-label">Target Condition</label>
+                <select id="target_condition" name="target_condition" class="form-select" required>
+                    {% for c in taxonomy.conditions %}
+                        <option value="{{ c }}">{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="file" class="form-label">Media File</label>
+                <input type="file" id="file" name="file" class="form-file-input" accept="video/*,image/*" required>
+                <p class="file-input-help">Accepted formats: MP4, MOV, AVI, WEBM (video); PNG, JPG, JPEG, GIF (image).</p>
+            </div>
+
+            <button type="submit" class="upload-submit-button">Upload Media</button>
+        </form>
+    </div>
+</section>
+{% endblock %}
+
+
+
+
+
+
+
+
+{#
 {% extends 'base.html' %}
 {% block content %}
 <h2>Upload Media</h2>
@@ -33,3 +108,4 @@
     <button type="submit">Upload</button>
 </form>
 {% endblock %}
+#}
