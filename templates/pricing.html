@@ -3,38 +3,47 @@
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='pricing_styles.css') }}">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
+<section class="pricing-section">
+    <h1 class="pricing-title">Choose Your Path to Well-being</h1>
+    <p class="pricing-subtitle">Unlock full access to curated content and tools for your personalized journey.</p>
 
-<section class="pricing-section"> {# New main container class #}
-    <h1 class="pricing-title">Choose Your Path to Well-being</h1> {# New heading class #}
-    <p class="pricing-subtitle">Unlock full access to curated content and tools for your personalized journey.</p> {# New subtitle #}
-
-    <div class="plan-grid"> {# New grid container for plans #}
+    <div class="plan-grid">
         {% for p in plans %}
-            <div class="plan-card"> {# New card class #}
+            <div class="plan-card">
                 <div class="plan-header">
-                    <h3 class="plan-title">{{ p.name }}</h3> {# New title class #}
+                    <h3 class="plan-title">{{ p.name }}</h3>
                     <p class="plan-price">
                         <span>GH¢ {{ "%.2f"|format(p.amount_pesewas/100) }}</span>
                         <span class="plan-interval"> / {{ p.interval_days }} days</span>
                     </p>
                 </div>
                 <div class="plan-body">
-                    <p class="plan-description">{{ p.description }}</p> {# New description class #}
-                    {# You can add more features here using list items for a better look #}
+                    <p class="plan-description">{{ p.description }}</p>
                     <ul class="plan-features">
-                        <li><i class="fas fa-check-circle"></i> Unlimited Content Access</li>
-                        <li><i class="fas fa-check-circle"></i> Progress Tracking</li>
-                        <li><i class="fas fa-check-circle"></i> Expert-curated Resources</li>
-                        {% if p.name == "Pro" %}
-                        <li><i class="fas fa-star"></i> Priority Support</li>
-                        <li><i class="fas fa-video"></i> Exclusive Therapy Contents</li>
+                        {% if p.name == "Starter" %}
+                            <li><i class="fas fa-book-open"></i> Limited Content Access</li>
+                            <li><i class="fas fa-chart-line"></i> Progress Tracking</li>
+                            <li><i class="fas fa-users"></i> Community Support</li>
+                        {% elif p.name == "Pro" %}
+                            <li><i class="fas fa-book"></i> Unlimited Content Access</li>
+                            <li><i class="fas fa-chart-line"></i> Progress Tracking</li>
+                            <li><i class="fas fa-user-graduate"></i> Expert-curated Resources</li>
+                            <li><i class="fas fa-video"></i> Exclusive Therapy Contents</li>
+                            <li><i class="fas fa-envelope-open-text"></i> Priority Email Support</li>
+                        {% elif p.name == "Ultimate" %}
+                            <li><i class="fas fa-gem"></i> All Pro Features</li>
+                            <li><i class="fas fa-user-md"></i> Monthly 1-on-1 Therapist Check-in</li>
+                            <li><i class="fas fa-file-download"></i> Downloadable Progress Reports</li>
+                            <li><i class="fas fa-rocket"></i> Early Access to New Features</li>
+                            <li><i class="fas fa-video"></i> Premium Therapy Videos</li>
                         {% endif %}
                     </ul>
                 </div>
                 <div class="plan-footer">
                     <button
-                        class="btn plan-subscribe-btn" {# New button class #}
+                        class="btn plan-subscribe-btn"
                         data-plan="{{ p.id }}"
                         data-amount="{{ p.amount_pesewas }}"
                         data-name="{{ p.name }}">
@@ -129,7 +138,7 @@ document.querySelectorAll('.pay-btn').forEach(btn=>{
       key: "{{ pub_key }}",
       // IMPORTANT: current_user.email will now be available because
       // the new registration flow makes clients log in before coming here.
-      email: "skapeprah@gmail.com",
+      email: "{{ current_user.email }}",
       amount: btn.dataset.amount,     // in pesewas
       currency: "GHS",
       channels: ['mobile_money','card'],

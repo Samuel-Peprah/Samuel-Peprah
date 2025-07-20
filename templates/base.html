@@ -5,6 +5,7 @@
     <title>TherapTube</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <link rel="icon" type="image/png" href="/static/icons/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/static/icons/favicon.svg" />
@@ -220,7 +221,7 @@
     {% if not request.cookies.get('cookies_accepted') %}
         <div id="cookie-banner" class="cookie-banner">
             🍪 We use cookies to improve your experience.
-            <form method="post" action="{{ url_for('accept_cookies') }}" style="display:inline;">
+            <form method="post" action="{{ url_for('accept_cookies') }}" class="cookie-inline-form">
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"> {# <--- CRUCIAL: ADDED CSRF TOKEN #}
                 <button type="submit">Accept</button>
             </form>

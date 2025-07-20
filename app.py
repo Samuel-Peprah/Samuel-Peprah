@@ -1727,7 +1727,8 @@ def forbidden(e):
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-         # ✅ Seed demo users if not already in database
+
+        # Seed demo users
         if not User.query.filter_by(username='therapist').first():
             t = User(username='therapist', role='therapist')
             t.set_password('pass')
@@ -1739,12 +1740,26 @@ if __name__ == '__main__':
             db.session.add(c)
 
         db.session.commit()
-        
-        if not Plan.query.first():
-            starter = Plan(name="Starter", amount_pesewas=500, interval_days=7)
-            pro = Plan(name="Pro", amount_pesewas=2000, interval_days=30)
-            ultimate = Plan(name="Ultimate", amount_pesewas=5000, interval_days=90)
-            db.session.add_all([starter, pro, ultimate])
-            db.session.commit()
-            print("✅ Plans table initialized.")
+
+        # ✅ Update or create plans
+        plans = {
+            "Starter": {"amount_pesewas": 5000, "interval_days": 7},      # GHS 50
+            "Pro": {"amount_pesewas": 25000, "interval_days": 30},        # GHS 250
+            "Ultimate": {"amount_pesewas": 50000, "interval_days": 90}    # GHS 500
+        }
+
+        for name, data in plans.items():
+            plan = Plan.query.filter_by(name=name).first()
+            if plan:
+                plan.amount_pesewas = data["amount_pesewas"]
+                plan.interval_days = data["interval_days"]
+                print(f"🔁 Updated plan: {name}")
+            else:
+                new_plan = Plan(name=name, **data)
+                db.session.add(new_plan)
+                print(f"✅ Created plan: {name}")
+
+        db.session.commit()
+        print("✅ Plans table synced.")
+    
     app.run(debug=True)
