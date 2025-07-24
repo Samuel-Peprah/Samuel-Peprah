@@ -126,19 +126,84 @@ csrf = CSRFProtect(app)
 
 
 # models.py
+# class User(db.Model, UserMixin):
+#     id = db.Column(db.Integer, primary_key=True)
+#     username = db.Column(db.String(80), unique=True, nullable=False)
+#     email    = db.Column(db.String(120), unique=True)
+#     invite_code_used = db.Column(db.String(36))
+#     password_hash = db.Column(db.String(128), nullable=False)
+#     role = db.Column(db.String(32), nullable=False)
+
+#     def set_password(self, password):
+#         self.password_hash = generate_password_hash(password)
+
+#     def check_password(self, password):
+#         return check_password_hash(self.password_hash, password)
+
+# class Media(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     filename = db.Column(db.String(200), nullable=False)
+#     thumbnail = db.Column(db.String(200))
+#     title = db.Column(db.String(120), nullable=False)
+#     description = db.Column(db.Text, nullable=True)
+#     category = db.Column(db.String(80), nullable=True)
+#     otpf_domain = db.Column(db.String(50))
+#     for_name = db.Column(db.String(50))
+#     target_condition = db.Column(db.String(50))
+#     uploader_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+#     view_count = db.Column(db.Integer, default=0)
+#     uploader = db.relationship('User', backref='media')
+#     upload_time = db.Column(db.DateTime, default=datetime.utcnow)
+
+# class WatchHistory(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+#     media_id = db.Column(db.Integer, db.ForeignKey('media.id'))
+#     progress_percent = db.Column(db.Integer, default=0)
+#     completed = db.Column(db.Boolean, default=False)
+#     watched_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+# class Plan(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     name = db.Column(db.String(100), nullable=False)
+#     amount_pesewas = db.Column(db.Integer, nullable=False)  # 1000 = GHS 10
+#     interval_days = db.Column(db.Integer, nullable=False, default=30)
+#     is_active = db.Column(db.Boolean, default=True)
+
+# class Subscription(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+#     plan_id = db.Column(db.Integer, db.ForeignKey('plan.id'), nullable=False)
+#     ref = db.Column(db.String(100), nullable=False, unique=True)
+#     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+#     expires_at = db.Column(db.DateTime)
+
+#     user = db.relationship('User', backref=db.backref('subscriptions', lazy=True))
+#     plan = db.relationship('Plan')
+
+
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email    = db.Column(db.String(120), unique=True)
     invite_code_used = db.Column(db.String(36))
     password_hash = db.Column(db.String(128), nullable=False)
-    role = db.Column(db.String(32), nullable=False)
+    role = db.Column(db.String(32), nullable=False) # 'client', 'therapist', 'admin', 'caregiver'
+
+    # Relationships: 'subscriptions' is the backref from Subscription.user
+    # We do NOT define a separate 'subscriptions_rel' here to avoid conflict.
+    # The 'user' relationship in Subscription model will create 'subscriptions' on User.
+    media_uploaded = db.relationship('Media', backref='uploader', lazy=True)
+    watch_history = db.relationship('WatchHistory', backref='user', lazy=True)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+    def __repr__(self):
+        return f'<User {self.username} ({self.role})>'
 
 class Media(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -152,8 +217,10 @@ class Media(db.Model):
     target_condition = db.Column(db.String(50))
     uploader_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     view_count = db.Column(db.Integer, default=0)
-    uploader = db.relationship('User', backref='media')
     upload_time = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<Media {self.title}>'
 
 class WatchHistory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -163,12 +230,22 @@ class WatchHistory(db.Model):
     completed = db.Column(db.Boolean, default=False)
     watched_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    # user and media backrefs are defined in User and Media models
+    def __repr__(self):
+        return f'<WatchHistory User:{self.user_id} Media:{self.media_id}>'
+
 class Plan(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    amount_pesewas = db.Column(db.Integer, nullable=False)  # 1000 = GHS 10
+    name = db.Column(db.String(100), nullable=False, unique=True)
+    amount_pesewas = db.Column(db.Integer, nullable=False)
     interval_days = db.Column(db.Integer, nullable=False, default=30)
     is_active = db.Column(db.Boolean, default=True)
+    for_role = db.Column(db.String(20), nullable=False, default='client')
+    description = db.Column(db.Text, nullable=True) # THIS MUST BE PRESENT
+
+    # subscriptions_on_plan is the backref from Subscription.plan
+    def __repr__(self):
+        return f"<Plan {self.name} - {self.amount_pesewas / 100} GHS (for {self.for_role})>"
 
 class Subscription(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -177,9 +254,19 @@ class Subscription(db.Model):
     ref = db.Column(db.String(100), nullable=False, unique=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     expires_at = db.Column(db.DateTime)
+    status = db.Column(db.String(50), default='active') # 'active', 'cancelled', 'expired', etc.
 
+    # This is the primary relationship from Subscription to User.
+    # It creates the 'subscriptions' backref on the User model.
     user = db.relationship('User', backref=db.backref('subscriptions', lazy=True))
-    plan = db.relationship('Plan')
+    # This is the primary relationship from Subscription to Plan.
+    # It creates the 'subscriptions_on_plan' backref on the Plan model.
+    plan = db.relationship('Plan', backref=db.backref('subscriptions_on_plan', lazy=True))
+    # , backref=db.backref('subscriptions_on_plan', lazy=True)
+    # , Status: {self.status}
+
+    def __repr__(self):
+        return f"<Subscription {self.id} for User {self.user.username} (Plan: {self.plan.name}, Status: {self.status})>"
 
 
 
@@ -277,8 +364,17 @@ PAYSTACK_HEADERS = {"Authorization": f"Bearer {app.config['PAYSTACK_SEC_KEY']}"}
 
 @app.route("/pricing")
 def pricing():
-    plans = Plan.query.filter_by(is_active=True).all()
+    # plans = Plan.query.filter_by(is_active=True).all()
     current_utc_year = datetime.now(timezone.utc).year
+    if current_user.is_authenticated:
+        if current_user.role == 'client':
+            plans = Plan.query.filter_by(is_active=True, for_role='client').all()
+        elif current_user.role == 'therapist':
+            plans = Plan.query.filter_by(is_active=True, for_role='therapist').all()
+        else:
+            plans = Plan.query.filter_by(is_active=True).all()
+    else:
+        plans = Plan.query.filter_by(is_active=True).all()
     return render_template("pricing.html",
                             plans=plans,
                             current_year=current_utc_year,
@@ -357,13 +453,42 @@ def _handle_charge_success(ref):
 #         return False
 #     return latest.expires_at >= datetime.utcnow()
 
+
+# def has_active_subscription(user):
+#     if not user.is_authenticated or user.role != 'client':
+#         return False
+#     latest = Subscription.query.filter_by(user_id=user.id).order_by(Subscription.timestamp.desc()).first()
+#     if not latest:
+#         return False
+#     return latest.expires_at >= datetime.utcnow()
+
+
 def has_active_subscription(user):
-    if not user.is_authenticated or user.role != 'client':
-        return False
-    latest = Subscription.query.filter_by(user_id=user.id).order_by(Subscription.timestamp.desc()).first()
-    if not latest:
-        return False
-    return latest.expires_at >= datetime.utcnow()
+    """
+    Checks if a given user has an active and unexpired subscription based on their role.
+    Admins do not require subscriptions. Caregivers are assumed not to require them either.
+    """
+    if not user.is_authenticated:
+        return False # Unauthenticated users never have an active subscription
+
+    # Admins and Caregivers bypass subscription checks
+    if user.role in ['admin', 'caregiver']:
+        return True
+    
+    # Clients and Therapists need an active subscription for their specific role type
+    if user.role in ['client', 'therapist']:
+        latest_subscription = Subscription.query.join(Plan).filter(
+            Subscription.user_id == user.id,
+            Subscription.status == 'active', # Ensure status is 'active'
+            Plan.for_role == user.role # CRUCIAL: Matches plan's intended role to user's role
+        ).order_by(Subscription.expires_at.desc()).first()
+
+        if not latest_subscription:
+            return False # No active subscription found for their role
+
+        return latest_subscription.expires_at > datetime.utcnow() # Checks expiry
+    
+    return False # Default for any other undefined roles
 
 
 # @app.route("/paystack/verify", methods=["POST"])
@@ -451,15 +576,15 @@ def subscription_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
         # --- NEW LOGIC: Allow therapists to bypass subscription check ---
-        if current_user.is_authenticated and current_user.role == 'therapist':
-            return f(*args, **kwargs) # Therapists can proceed
+        if current_user.is_authenticated and current_user.role == 'admin':
+            return f(*args, **kwargs) # admin can proceed
         # --- END NEW LOGIC ---
 
         # Existing logic for clients and other roles: check for active subscription
         # This will also handle unauthenticated users if has_active_subscription
         # returns False for them. Make sure has_active_subscription handles None/anonymous user.
         if not has_active_subscription(current_user):
-            flash("You must subscribe to access this page.", "warning")
+            flash(f"Please subscribe to a {current_user.role} plan to access this feature.", "warning")
             return redirect(url_for("pricing"))
         return f(*args, **kwargs)
     return wrapper
@@ -612,8 +737,10 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        confirm_password = request.form['confirm_password']
         email    = request.form['email']
-        token    = request.form['invite_token'].strip()
+        role     = request.form['role']
+        invite_token = request.form.get('invite_token', '').strip()
 
         # Basic validation for password and confirmation (assuming you have this in your frontend/form)
         # If you want to add password mismatch check, you can uncomment/add this:
@@ -628,37 +755,64 @@ def register():
         if User.query.filter_by(email=email).first():
             errors.append('Email already registered.')
 
+
+        if password != confirm_password:
+            errors.append('Passwords do not match.')
+
+
+        if role == 'therapist':
+            if not invite_token or invite_token != os.environ.get("THERAPIST_TOKEN"):
+                errors.append('Invalid or missing invite token for therapist registration.')
+
         if errors:
             for error in errors:
                 flash(error, 'danger')
             # Render the template again, preserving user input
             return render_template('register.html', taxonomy=TAXONOMY, current_year=current_utc_year,
-                                    username=username, email=email, invite_token=token)
+                                    username=username, email=email, invite_token=invite_token, selected_role=role)
 
 
-        new_user = User(username=username, email=email)
+        new_user = User(username=username, email=email, role=role)
         new_user.set_password(password)
+        new_user.invite_code_used = invite_token if role == 'therapist' else None
 
-        # If invite token matches, elevate to therapist
-        if token and token == os.environ.get("THERAPIST_TOKEN"):
-            new_user.role = 'therapist'
-            new_user.invite_code_used = token
-        else:
-            new_user.role = 'client'
+
+        # # If invite token matches, elevate to therapist
+        # if token and token == os.environ.get("THERAPIST_TOKEN"):
+        #     new_user.role = 'therapist'
+        #     new_user.invite_code_used = token
+        # else:
+        #     new_user.role = 'client'
 
         db.session.add(new_user)
         db.session.commit()
 
-        if new_user.role == 'client':
-            # For clients, do NOT automatically log them in.
-            # Redirect them to the pricing page to choose a plan.
-            flash('Registration successful! Please choose a subscription plan to access content.', 'info')
-            return redirect(url_for('pricing'))
-        else: # For 'therapist' role, log them in directly
+        # if new_user.role in ['client', 'therapist']:
+        #     # For clients, do NOT automatically log them in.
+        #     # Redirect them to the pricing page to choose a plan.
+        #     flash(f'Registration successful! Please choose a {new_user.role} subscription plan to get started.', 'info')
+        #     return redirect(url_for('pricing'))
+        # else: # For 'therapist' role, log them in directly
+        #     login_user(new_user)
+        #     flash(f'Registration successful. Welcome, {new_user.role.capitalize()}!', 'success')
+            
+        #     if new_user.role == 'admin':
+        #         return redirect(url_for('admin_dashboard'))
+        #     elif new_user.role == 'therapist':
+        #         return redirect(url_for('therapist_dashboard'))
+        #     else:
+        #         return redirect(url_for('index'))
+        
+        if new_user.role in ['client', 'therapist']:
+            flash(f'Registration successful! Please Login and choose a {new_user.role} subscription plan to get started.', 'info')
+            return redirect(url_for('login'))
+        else:
             login_user(new_user)
-            flash('Registration successful. Welcome, Therapist!', 'success')
-            # <--- THE KEY CHANGE HERE: Redirect therapist to their dedicated dashboard
-            return redirect(url_for('therapist_dashboard'))
+            flash(f'Registration successful. Welcome, {new_user.role.capitalize()}!', 'success')
+            if new_user.role == 'admin':
+                return redirect(url_for('admin_dashboard'))
+            else:
+                return redirect(url_for('index'))
 
     return render_template('register.html', taxonomy=TAXONOMY, current_year=current_utc_year)
 
@@ -687,6 +841,29 @@ def index():
     current_utc_year = datetime.now(timezone.utc).year
     return render_template('index.html' , current_year=current_utc_year, taxonomy=TAXONOMY, 
                             media=Media.query.order_by(Media.upload_time.desc()).all())
+    
+
+# @app.route('/')
+# def index():
+#     # MODIFIED: Redirect authenticated users to their dashboard, enforcing subscription for clients/therapists
+#     if current_user.is_authenticated:
+#         if current_user.role in ['client', 'therapist']:
+#             if not has_active_subscription(current_user):
+#                 flash(f"Please subscribe to a {current_user.role} plan to access your dashboard.", "warning")
+#                 return redirect(url_for('pricing'))
+#             # If they have an active subscription, proceed to their dashboard
+#             if current_user.role == 'client':
+#                 return redirect(url_for('client_dashboard'))
+#             elif current_user.role == 'therapist':
+#                 return redirect(url_for('therapist_dashboard'))
+#         elif current_user.role == 'admin':
+#             return redirect(url_for('admin_dashboard'))
+#         elif current_user.role == 'caregiver':
+#             return redirect(url_for('caregiver_dashboard'))
+    
+#     # If not authenticated, or if they are authenticated but not a client/therapist/admin/caregiver, show landing page
+#     media = Media.query.order_by(Media.upload_time.desc()).all()
+#     return render_template('index.html', media=media)
 
 
 # @app.route('/login', methods=['GET', 'POST'])
@@ -713,14 +890,21 @@ def login():
             # Redirect based on user role
             if user.role == 'client':
                 if not has_active_subscription(user):
-                    flash("Your subscription has expired or is not active. Please subscribe to continue.", "warning")
+                    flash(f"Welcome back! Please subscribe to a {user.role} plan to access your dashboard.", "warning")
                     return redirect(url_for('pricing'))
                 else:
-                    flash('Login successful. Welcome back!', 'success')
+                    flash(f'Login successful. Welcome back, {user.role.capitalize()}!', 'success')
                     return redirect(url_for('index')) # Clients go to the main index (content view)
-            else: # user.role == 'therapist'
-                flash('Login successful. Welcome back, Therapist!', 'success')
-                return redirect(url_for('therapist_dashboard')) # <--- UPDATED: Therapists go to their new dashboard
+            elif user.role == 'therapist':
+                if not has_active_subscription(user):
+                    flash(f"Welcome back! Please subscribe to a {user.role} plan to access your dashboard.", "warning")
+                    return redirect(url_for('pricing'))
+                else:
+                    flash(f'Login successful. Welcome back, {user.role.capitalize()}!', 'success')
+                    return redirect(url_for('therapist_dashboard')) # <--- UPDATED: Therapists go to their new dashboard
+            else:
+                flash(f'Login successful. Welcome back, {user.role.capitalize()}!', 'success')
+                return redirect(url_for('admin_dashboard')) # <--- UPDATED: Admins go to their new dashboard
         else:
             flash('Invalid credentials', 'danger')
     return render_template('login.html', taxonomy=TAXONOMY, current_year=current_utc_year)
@@ -770,7 +954,7 @@ def logout():
 @app.route('/admin')
 @login_required
 def admin_dashboard():
-    if current_user.role != 'therapist':
+    if current_user.role != 'admin':
         abort(403)
 
     all_media     = Media.query.order_by(Media.upload_time.desc()).all()
@@ -1147,8 +1331,8 @@ def delete_media(media_id):
 def upload():
     current_utc_year = datetime.now(timezone.utc).year
     # Ensure only therapists can upload
-    if current_user.role != 'therapist':
-        flash('Only therapists can upload.', 'danger') # Added 'danger' category for consistency
+    if current_user.role != 'admin':
+        flash('Only admin can upload.', 'danger') # Added 'danger' category for consistency
         return redirect(url_for('index'))
 
     if request.method == 'POST':
@@ -1239,9 +1423,9 @@ def upload():
                 thumbnail=thumb_name,
                 title=request.form['title'],
                 description=request.form['description'],
-                category=request.form['category'],
-                otpf_domain=request.form['otpf_domain'],
-                for_name=request.form['for_name'],
+                # category=request.form['category'],
+                # otpf_domain=request.form['otpf_domain'],
+                # for_name=request.form['for_name'],
                 target_condition=request.form['target_condition'],
                 uploader_id=current_user.id
             )
@@ -1279,7 +1463,6 @@ def upload():
 
 @app.route('/search')
 @login_required # Ensure user is logged in
-@subscription_required # Ensure user has an active subscription (if client)
 def search():
     current_utc_year = datetime.now(timezone.utc).year
     # The subscription_required decorator will handle redirection for unsubscribed clients.
@@ -1338,7 +1521,6 @@ def search():
 
 @app.route('/media/<int:media_id>')
 @login_required # User must be logged in
-@subscription_required # User must have an active subscription (if client)
 def watch(media_id):
     # The decorators handle redirection for unauthenticated or unsubscribed clients.
     m = Media.query.get_or_404(media_id)
@@ -1381,7 +1563,6 @@ def watch(media_id):
 
 @app.route('/recent')
 @login_required # User must be logged in
-@subscription_required # User must have an active subscription (if client)
 def recent():
     # The decorators handle redirection for unauthenticated or unsubscribed clients.
     current_utc_year = datetime.now(timezone.utc).year
@@ -1448,7 +1629,6 @@ def recent():
 
 @app.route('/stream/<path:fname>')
 @login_required # User must be logged in to stream content
-@subscription_required # User must have an active subscription (if client) to stream
 def stream(fname):
     """
     Serve video with HTTP Range support so the browser can seek.
@@ -1515,7 +1695,6 @@ def stream(fname):
 # mark a video as completed
 @app.route('/complete/<int:media_id>', methods=['POST'])
 @login_required # User must be logged in to mark as complete
-@subscription_required # User must have an active subscription (if client) to mark as complete
 def mark_complete(media_id):
     # The decorators handle redirection for unauthenticated or unsubscribed clients.
 
@@ -1555,7 +1734,6 @@ def mark_complete(media_id):
 
 @app.route('/progress')
 @login_required # User must be logged in
-@subscription_required # User must have an active subscription (if client) to view progress
 def progress():
     # The decorators handle redirection for unauthenticated or unsubscribed clients.
     current_utc_year = datetime.now(timezone.utc).year
@@ -1601,7 +1779,6 @@ def progress():
 
 @app.route('/progress/report.csv')
 @login_required # User must be logged in
-@subscription_required # User must have an active subscription (if client) to download report
 def progress_report():
     # The decorators handle redirection for unauthenticated or unsubscribed clients.
     import csv # Ensure csv is imported
@@ -1630,6 +1807,7 @@ def progress_report():
 
 @app.route('/therapist_dashboard')
 @login_required
+@subscription_required
 def therapist_dashboard():
     # Ensure only therapists can access this dashboard
     if current_user.role != 'therapist':
@@ -1643,12 +1821,14 @@ def therapist_dashboard():
 
     return render_template('therapist_dashboard.html',
                             media=all_media,
+                            has_subscription=True,
                             taxonomy=TAXONOMY, # Assuming TAXONOMY is needed for filters/categories
                             current_year=current_utc_year)
 
 
 @app.route('/client_dashboard')
 @login_required
+@subscription_required
 def client_dashboard():
     if current_user.role != 'client':
         flash('Access denied. You do not have client privileges.', 'danger')
@@ -1657,35 +1837,28 @@ def client_dashboard():
     all_media = Media.query.order_by(Media.upload_time.desc()).all() # Fetch all media
     current_utc_year = datetime.now(timezone.utc).year
 
-    # This part determines if the client sees content or paywall
-    if has_active_subscription(current_user):
-        return render_template('client_dashboard.html', media=all_media, has_subscription=True, taxonomy=TAXONOMY, current_year=current_utc_year)
-    else:
-        return render_template('client_dashboard.html', media=[], has_subscription=False, current_year=current_utc_year)
+    return render_template('client_dashboard.html', media=all_media, has_subscription=True, taxonomy=TAXONOMY, current_year=current_utc_year)
+
 
 
 @app.route('/my_subscription')
 @login_required # Only logged-in users can see their subscription details
 def my_subscription():
     current_utc_year = datetime.now(timezone.utc).year
-    if current_user.role != 'client':
-        flash("You are not authorized to view this page.", 'danger')
-        # Redirect to a relevant dashboard for non-clients
-        if current_user.role == 'therapist':
-            return redirect(url_for('therapist_dashboard'))
-        elif current_user.role == 'admin':
-            return redirect(url_for('admin_dashboard'))
-        else:
-            return redirect(url_for('index')) # Fallback for other roles
-
-    # Fetch the most recent subscription for the current user
-    # Order by timestamp descending to get the latest one if multiple exist
-    latest_subscription = Subscription.query.filter_by(user_id=current_user.id)\
+    if current_user.role in ['client', 'therapist']:
+        latest_subscription = Subscription.query.filter_by(user_id=current_user.id)\
                                             .order_by(Subscription.timestamp.desc())\
                                             .first()
+        return render_template('my_subscription.html',
+                                subscription=latest_subscription, taxonomy=TAXONOMY, current_year=current_utc_year, datetime=datetime)
+        
+    else:
+        flash("You are not authorized to view this page.", 'danger')
+        if current_user.role == 'admin':
+            return redirect(url_for('admin_dashboard'))
+        else:
+            return redirect(url_for('index'))
 
-    return render_template('my_subscription.html',
-                            subscription=latest_subscription, taxonomy=TAXONOMY, current_year=current_utc_year, datetime=datetime)
 
 
 # 📄 About Page
@@ -1726,40 +1899,61 @@ def forbidden(e):
 
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()
+        # IMPORTANT: If you have existing data and want to keep it, DO NOT uncomment db.drop_all()
+        # If you're starting fresh, or want to reset, uncomment the line below.
+        # db.drop_all() # Use with caution! This deletes all tables and data.
+        db.create_all() # This will create new tables if they don't exist, but not alter existing ones.
 
         # Seed demo users
+        if not User.query.filter_by(username='admin').first():
+            admin_user = User(username='admin', email='admin@activot.com', role='admin')
+            admin_user.set_password('admin123')
+            db.session.add(admin_user)
+            print("Default admin user created: username='admin', password='admin123'")
+
         if not User.query.filter_by(username='therapist').first():
-            t = User(username='therapist', role='therapist')
-            t.set_password('pass')
-            db.session.add(t)
+            therapist_user = User(username='therapist', email='therapist@activot.com', role='therapist')
+            therapist_user.set_password('therapist123')
+            db.session.add(therapist_user)
+            print("Default therapist user created: username='therapist', password='therapist123'")
 
         if not User.query.filter_by(username='client').first():
-            c = User(username='client', role='client')
-            c.set_password('pass')
-            db.session.add(c)
+            client_user = User(username='client', email='client@activot.com', role='client')
+            client_user.set_password('client123')
+            db.session.add(client_user)
+            print("Default client user created: username='client', password='client123'")
 
-        db.session.commit()
+        db.session.commit() # Commit users first
 
-        # ✅ Update or create plans
-        plans = {
-            "Starter": {"amount_pesewas": 5000, "interval_days": 7},      # GHS 50
-            "Pro": {"amount_pesewas": 25000, "interval_days": 30},        # GHS 250
-            "Ultimate": {"amount_pesewas": 50000, "interval_days": 90}    # GHS 500
-        }
+        # Update or create plans with 'for_role'
+        plans_data = [
+            # Client Plans (higher pricing)
+            {"name": "Client Monthly Plan", "amount_pesewas": 5000, "interval_days": 30, "description": "Full access for clients for one month.", "for_role": "client", "is_active": True},
+            {"name": "Client Quarterly Plan", "amount_pesewas": 12000, "interval_days": 90, "description": "Extended access for clients for three months.", "for_role": "client", "is_active": True},
+            {"name": "Client Annual Plan", "amount_pesewas": 40000, "interval_days": 365, "description": "Premium access for clients for one year.", "for_role": "client", "is_active": True},
+            # Therapist Plans (lower pricing)
+            {"name": "Therapist Monthly Plan", "amount_pesewas": 3000, "interval_days": 30, "description": "Access to therapist features for one month.", "for_role": "therapist", "is_active": True},
+            {"name": "Therapist Quarterly Plan", "amount_pesewas": 7500, "interval_days": 90, "description": "Extended access to therapist features for three months.", "for_role": "therapist", "is_active": True},
+            {"name": "Therapist Annual Plan", "amount_pesewas": 25000, "interval_days": 365, "description": "Full access to therapist features for one year.", "for_role": "therapist", "is_active": True},
+        ]
 
-        for name, data in plans.items():
-            plan = Plan.query.filter_by(name=name).first()
+        for data in plans_data:
+            plan = Plan.query.filter_by(name=data["name"]).first()
             if plan:
+                # Update existing plan details
                 plan.amount_pesewas = data["amount_pesewas"]
                 plan.interval_days = data["interval_days"]
-                print(f"🔁 Updated plan: {name}")
+                plan.description = data["description"]
+                plan.for_role = data["for_role"] # Ensure role is updated too
+                plan.is_active = data["is_active"]
+                print(f"🔁 Updated plan: {data['name']}")
             else:
-                new_plan = Plan(name=name, **data)
+                # Create new plan
+                new_plan = Plan(**data)
                 db.session.add(new_plan)
-                print(f"✅ Created plan: {name}")
+                print(f"✅ Created plan: {data['name']}")
 
         db.session.commit()
         print("✅ Plans table synced.")
-    
+
     app.run(debug=True)

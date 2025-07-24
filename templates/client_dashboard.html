@@ -1,39 +1,30 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='client_dashboard.css') }}"> {# Changed to new filename #}
+<link rel="stylesheet" href="{{ url_for('static', filename='therapist_dashboard.css') }}">
 
-<div class="client-dashboard-container">
-    <h1 class="dashboard-title">Client Dashboard: All Media</h1>
+<div class="therapist-dashboard-container">
+    <h1 class="dashboard-title">Client Dashboard: All Media Content</h1>
 
-    {# Check if the client has an active subscription #}
-    {% if has_subscription %}
-        <div class="media-grid">
-            {% for item in media %}
-                <div class="media-card">
-                    <a href="{{ url_for('watch', media_id=item.id) }}" class="media-link">
-                        <div class="media-card-thumbnail">
-                            <img src="{{ url_for('static', filename='uploads/thumbs/' + item.thumbnail) }}" alt="{{ item.title }}">
-                        </div>
-                        <div class="media-card-content">
-                            <p class="media-card-title">{{ item.title }}</p>
-                            <small class="media-card-meta">{{ item.target_condition }} · {{ item.otpf_domain }}</small>
-                        </div>
-                    </a>
-                </div>
-            {% else %}
-                <div class="no-media-message">
-                    <p>No media available yet. Please check back later for new content!</p>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        {# Client is authenticated but subscription is not active #}
-        <div class="paywall-message">
-            <p class="paywall-text">🔒 This content requires an active subscription.</p>
-            <a class="btn btn-primary-paywall" href="{{ url_for('pricing') }}">See Plans</a>
-        </div>
-    {% endif %}
+    <div class="media-grid">
+        {% for item in media %}
+            <div class="media-card">
+                <a href="{{ url_for('watch', media_id=item.id) }}" class="media-link">
+                    <div class="media-card-thumbnail">
+                        <img src="{{ url_for('static', filename='uploads/thumbs/' + item.thumbnail) }}" alt="{{ item.title }}">
+                    </div>
+                    <div class="media-card-content">
+                        <p class="media-card-title">{{ item.title }}</p>
+                        <small class="media-card-meta">{{ item.target_condition }}</small>
+                    </div>
+                </a>
+            </div>
+        {% else %}
+            <div class="no-media-message">
+                <p>No media uploaded yet!</p>
+            </div>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}
 

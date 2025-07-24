@@ -15,14 +15,13 @@
                     </div>
                     <div class="media-card-content">
                         <p class="media-card-title">{{ item.title }}</p>
-                        <small class="media-card-meta">{{ item.target_condition }} · {{ item.otpf_domain }}</small>
+                        <small class="media-card-meta">{{ item.target_condition }}</small>
                     </div>
                 </a>
             </div>
         {% else %}
             <div class="no-media-message">
-                <p>No media uploaded yet. As a therapist, you can upload new resources to expand the library!</p>
-                <a class="btn btn-primary-upload" href="{{ url_for('upload') }}">Upload New Media</a>
+                <p>No media uploaded yet!</p>
             </div>
         {% endfor %}
     </div>

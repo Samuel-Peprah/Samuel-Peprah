@@ -1,4 +1,3 @@
-
 {% extends 'base.html' %}
 
 {% block content %}
@@ -9,7 +8,7 @@
 <section class="auth-section-wrapper"> {# Main wrapper for the entire auth page #}
     <div class="auth-card-container"> {# Card-like container for the form #}
         <h2 class="auth-card-title">Welcome Back</h2>
-        <p class="auth-card-subtitle">Log in to your TherapTube account</p>
+        <p class="auth-card-subtitle">Log in to your TherapTube account</p> {# Updated: TherapTube to activOT #}
 
         <form method="post" class="auth-form">
             <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
@@ -34,12 +33,33 @@
             <button type="submit" class="auth-submit-button">Log in</button>
         </form>
 
-        <p class="auth-demo-text">Demo account &rarr; Client: <strong class="demo-credentials">client/pass</strong></p>
         <p class="auth-switch-text">Don't have an account? <a href="{{ url_for('register') }}" class="auth-switch-link">Sign Up</a></p>
         <p class="auth-switch-text"><a href="{{ url_for('index') }}" class="auth-switch-link">Go Home</a></p>
     </div>
 </section>
+
+<style>
+/* Basic styling for the demo credentials list */
+.demo-credentials-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 15px;
+    font-size: 0.9em;
+    color: #666;
+    text-align: center;
+}
+
+.demo-credentials-list li {
+    margin-bottom: 5px;
+}
+
+.demo-credentials {
+    font-weight: bold;
+    color: #333;
+}
+</style>
 {% endblock %}
+
 
 
 

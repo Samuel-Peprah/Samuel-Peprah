@@ -8,19 +8,19 @@
 <section class="auth-section">
     <div class="auth-card">
         <h2 class="auth-title">Create Your Account</h2>
-        <p class="auth-subtitle">Join TherapTube and start your personalized journey</p>
+        <p class="auth-subtitle">Join TherapTube and get access to all therapeutic resources</p> {# Updated text from TherapTube to activOT #}
 
         <form method="post" class="auth-form">
             <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
             
             <div class="form-group-custom">
                 <label for="username">Username</label>
-                <input type="text" id="username" name="username" required autocomplete="username">
+                <input type="text" id="username" name="username" required autocomplete="username" value="{{ username if username else '' }}"> {# Added value to retain input on error #}
             </div>
 
             <div class="form-group-custom">
-                <label for="email">Email (optional)</label>
-                <input type="email" id="email" name="email" autocomplete="email">
+                <label for="email">Email</label> {# Removed (optional) as email is usually required for subscriptions #}
+                <input type="email" id="email" name="email" required autocomplete="email" value="{{ email if email else '' }}"> {# Added required and value #}
             </div>
 
             <div class="form-group-custom">
@@ -29,8 +29,24 @@
             </div>
 
             <div class="form-group-custom">
-                <label for="invite_token">Invite Token (only if therapist)</label>
-                <input type="text" id="invite_token" name="invite_token" placeholder="Leave blank if client" autocomplete="off">
+                <label for="confirm_password">Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" required autocomplete="new-password">
+            </div>
+
+            <div class="form-group-custom">
+                <label>Register as:</label>
+                <div class="radio-group">
+                    <input type="radio" id="role_client" name="role" value="client" checked>
+                    <label for="role_client">Client</label>
+                    
+                    <input type="radio" id="role_therapist" name="role" value="therapist">
+                    <label for="role_therapist">Therapist</label>
+                </div>
+            </div>
+
+            <div class="form-group-custom" id="invite-token-group">
+                <label for="invite_token">Therapist Invite Token (Required for Therapists)</label>
+                <input type="text" id="invite_token" name="invite_token" placeholder="Enter token if registering as Therapist" autocomplete="off" value="{{ invite_token if invite_token else '' }}"> {# Added value #}
             </div>
 
             <button type="submit" class="auth-submit-btn">Register</button>
@@ -40,6 +56,58 @@
         <p class="auth-switch-link"><a href="{{ url_for('index') }}">Go Home</a></p>
     </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const roleClientRadio = document.getElementById('role_client');
+    const roleTherapistRadio = document.getElementById('role_therapist');
+    const inviteTokenGroup = document.getElementById('invite-token-group');
+    const inviteTokenInput = document.getElementById('invite_token');
+
+    // Function to toggle invite token visibility and required status
+    function toggleInviteToken() {
+        if (roleTherapistRadio.checked) {
+            inviteTokenGroup.style.display = 'block';
+            inviteTokenInput.setAttribute('required', 'required');
+        } else {
+            inviteTokenGroup.style.display = 'none';
+            inviteTokenInput.removeAttribute('required');
+            inviteTokenInput.value = ''; // Clear token if switching to client
+        }
+    }
+
+    // Initial call to set visibility based on default checked radio
+    toggleInviteToken();
+
+    // Add event listeners for radio button changes
+    roleClientRadio.addEventListener('change', toggleInviteToken);
+    roleTherapistRadio.addEventListener('change', toggleInviteToken);
+});
+</script>
+
+<style>
+/* Basic styling for radio group */
+.radio-group {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.radio-group input[type="radio"] {
+    margin-right: 5px;
+}
+
+.radio-group label {
+    font-weight: normal; /* Override bold label from form-group-custom */
+    cursor: pointer;
+}
+
+/* Hide invite token group by default, controlled by JS */
+#invite-token-group {
+    display: none;
+}
+</style>
+
 {% endblock %}
 
 
