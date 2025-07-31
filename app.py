@@ -1,7 +1,7 @@
 
 import os
 from datetime import datetime, timezone, timedelta
-from flask import Flask, abort, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, abort, render_template, request, redirect, url_for, flash, current_app, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -41,7 +41,9 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from werkzeug.security import generate_password_hash, check_password_hash
 load_dotenv()
 from flask_wtf.csrf import CSRFProtect
-
+import logging
+from flask_migrate import Migrate
+logging.basicConfig(level=logging.INFO)
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -188,7 +190,8 @@ class User(db.Model, UserMixin):
     email    = db.Column(db.String(120), unique=True)
     invite_code_used = db.Column(db.String(36))
     password_hash = db.Column(db.String(128), nullable=False)
-    role = db.Column(db.String(32), nullable=False) # 'client', 'therapist', 'admin', 'caregiver'
+    role = db.Column(db.String(32), nullable=False) # 'client', 'therapist', 'admin',
+    
 
     # Relationships: 'subscriptions' is the backref from Subscription.user
     # We do NOT define a separate 'subscriptions_rel' here to avoid conflict.
@@ -306,6 +309,9 @@ class Subscription(db.Model):
 # def inject_version():
 #     return dict(app_version=APP_VERSION)
 
+migrate = Migrate(app, db)
+
+
 @app.context_processor
 def inject_global_data():
     """
@@ -415,36 +421,80 @@ def pricing():
 #     return {"ok": True}
 
 
+# @app.post("/ps_webhook")
+# def paystack_webhook():
+#     raw  = request.get_data()
+#     sign = request.headers.get("x-paystack-signature","")
+#     secret = app.config["PAYSTACK_WEBHOOK_SECRET"].encode()
+#     if hmac.new(secret, raw, hashlib.sha512).hexdigest() != sign:
+#         abort(400)
+
+#     event = json.loads(raw)
+#     if event["event"] == "charge.success":
+#         ref = event["data"]["reference"]
+#         _handle_charge_success(ref)
+#     return {"status": "ok"}
+
+# def _handle_charge_success(ref):
+#     """
+#     Handle successful charge event from Paystack webhook.
+#     """
+#     # 1. Get the subscription by reference
+#     sub = Subscription.query.filter_by(last_tx_ref=ref).first()
+#     if not sub:
+#         print(f"⚠️ No subscription found for ref {ref}")
+#         return
+
+#     # 2. Update the subscription status
+#     sub.status = "active"
+#     db.session.commit()
+
+#     print(f"✅ Subscription {sub.id} activated for user {sub.user.username} with ref {ref}")
+
 @app.post("/ps_webhook")
 def paystack_webhook():
-    raw  = request.get_data()
-    sign = request.headers.get("x-paystack-signature","")
-    secret = app.config["PAYSTACK_WEBHOOK_SECRET"].encode()
-    if hmac.new(secret, raw, hashlib.sha512).hexdigest() != sign:
-        abort(400)
+    """
+    Webhook endpoint to receive Paystack payment events securely.
+    """
+    raw = request.get_data()
+    signature = request.headers.get("x-paystack-signature", "")
+    secret = current_app.config["PAYSTACK_WEBHOOK_SECRET"].encode()
 
-    event = json.loads(raw)
-    if event["event"] == "charge.success":
-        ref = event["data"]["reference"]
-        _handle_charge_success(ref)
-    return {"status": "ok"}
+    # Validate signature
+    expected_signature = hmac.new(secret, raw, hashlib.sha512).hexdigest()
+    if not hmac.compare_digest(expected_signature, signature):
+        current_app.logger.warning("❌ Invalid Paystack signature")
+        return jsonify({"status": "unauthorized"}), 401
+
+    try:
+        event = json.loads(raw)
+    except json.JSONDecodeError:
+        current_app.logger.error("❌ Failed to decode webhook JSON payload")
+        return jsonify({"status": "bad payload"}), 400
+
+    if event.get("event") == "charge.success":
+        reference = event.get("data", {}).get("reference")
+        if reference:
+            _handle_charge_success(reference)
+    
+    return jsonify({"status": "ok"}), 200
+
 
 def _handle_charge_success(ref):
     """
-    Handle successful charge event from Paystack webhook.
+    Handle a successful charge from Paystack by activating the associated subscription.
     """
-    # 1. Get the subscription by reference
     sub = Subscription.query.filter_by(last_tx_ref=ref).first()
+    
     if not sub:
-        print(f"⚠️ No subscription found for ref {ref}")
+        current_app.logger.warning(f"⚠️ No subscription found for reference: {ref}")
         return
 
-    # 2. Update the subscription status
+    # Update subscription status
     sub.status = "active"
     db.session.commit()
 
-    print(f"✅ Subscription {sub.id} activated for user {sub.user.username} with ref {ref}")
-
+    current_app.logger.info(f"✅ Subscription {sub.id} activated for user {sub.user.username} [Ref: {ref}]")
 
 
 # def has_active_subscription(user):
@@ -875,6 +925,7 @@ def index():
 #             return redirect(url_for('index'))
 #         flash('Invalid credentials')
 #     return render_template('login.html', taxonomy=TAXONOMY)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -1898,62 +1949,62 @@ def forbidden(e):
 
 
 if __name__ == '__main__':
-    with app.app_context():
-        # IMPORTANT: If you have existing data and want to keep it, DO NOT uncomment db.drop_all()
-        # If you're starting fresh, or want to reset, uncomment the line below.
-        # db.drop_all() # Use with caution! This deletes all tables and data.
-        db.create_all() # This will create new tables if they don't exist, but not alter existing ones.
+    # with app.app_context():
+    #     # IMPORTANT: If you have existing data and want to keep it, DO NOT uncomment db.drop_all()
+    #     # If you're starting fresh, or want to reset, uncomment the line below.
+    #     # db.drop_all() # Use with caution! This deletes all tables and data.
+    #     db.create_all() # This will create new tables if they don't exist, but not alter existing ones.
 
-        # Seed demo users
-        if not User.query.filter_by(username='admin').first():
-            admin_user = User(username='admin', email='admin@activot.com', role='admin')
-            admin_user.set_password('admin123')
-            db.session.add(admin_user)
-            print("Default admin user created: username='admin', password='admin123'")
+    #     # Seed demo users
+    #     if not User.query.filter_by(username='admin').first():
+    #         admin_user = User(username='admin', email='admin@activot.com', role='admin')
+    #         admin_user.set_password('admin123')
+    #         db.session.add(admin_user)
+    #         print("Default admin user created: username='admin', password='admin123'")
 
-        if not User.query.filter_by(username='therapist').first():
-            therapist_user = User(username='therapist', email='therapist@activot.com', role='therapist')
-            therapist_user.set_password('therapist123')
-            db.session.add(therapist_user)
-            print("Default therapist user created: username='therapist', password='therapist123'")
+    #     if not User.query.filter_by(username='therapist').first():
+    #         therapist_user = User(username='therapist', email='therapist@activot.com', role='therapist')
+    #         therapist_user.set_password('therapist123')
+    #         db.session.add(therapist_user)
+    #         print("Default therapist user created: username='therapist', password='therapist123'")
 
-        if not User.query.filter_by(username='client').first():
-            client_user = User(username='client', email='client@activot.com', role='client')
-            client_user.set_password('client123')
-            db.session.add(client_user)
-            print("Default client user created: username='client', password='client123'")
+    #     if not User.query.filter_by(username='client').first():
+    #         client_user = User(username='client', email='client@activot.com', role='client')
+    #         client_user.set_password('client123')
+    #         db.session.add(client_user)
+    #         print("Default client user created: username='client', password='client123'")
 
-        db.session.commit() # Commit users first
+    #     db.session.commit() # Commit users first
 
-        # Update or create plans with 'for_role'
-        plans_data = [
-            # Client Plans (higher pricing)
-            {"name": "Client Monthly Plan", "amount_pesewas": 5000, "interval_days": 30, "description": "Full access for clients for one month.", "for_role": "client", "is_active": True},
-            {"name": "Client Quarterly Plan", "amount_pesewas": 12000, "interval_days": 90, "description": "Extended access for clients for three months.", "for_role": "client", "is_active": True},
-            {"name": "Client Annual Plan", "amount_pesewas": 40000, "interval_days": 365, "description": "Premium access for clients for one year.", "for_role": "client", "is_active": True},
-            # Therapist Plans (lower pricing)
-            {"name": "Therapist Monthly Plan", "amount_pesewas": 3000, "interval_days": 30, "description": "Access to therapist features for one month.", "for_role": "therapist", "is_active": True},
-            {"name": "Therapist Quarterly Plan", "amount_pesewas": 7500, "interval_days": 90, "description": "Extended access to therapist features for three months.", "for_role": "therapist", "is_active": True},
-            {"name": "Therapist Annual Plan", "amount_pesewas": 25000, "interval_days": 365, "description": "Full access to therapist features for one year.", "for_role": "therapist", "is_active": True},
-        ]
+    #     # Update or create plans with 'for_role'
+    #     plans_data = [
+    #         # Client Plans (higher pricing)
+    #         {"name": "Client Monthly Plan", "amount_pesewas": 5000, "interval_days": 30, "description": "Full access for clients for one month.", "for_role": "client", "is_active": True},
+    #         {"name": "Client Quarterly Plan", "amount_pesewas": 12000, "interval_days": 90, "description": "Extended access for clients for three months.", "for_role": "client", "is_active": True},
+    #         {"name": "Client Annual Plan", "amount_pesewas": 40000, "interval_days": 365, "description": "Premium access for clients for one year.", "for_role": "client", "is_active": True},
+    #         # Therapist Plans (lower pricing)
+    #         {"name": "Therapist Monthly Plan", "amount_pesewas": 3000, "interval_days": 30, "description": "Access to therapist features for one month.", "for_role": "therapist", "is_active": True},
+    #         {"name": "Therapist Quarterly Plan", "amount_pesewas": 7500, "interval_days": 90, "description": "Extended access to therapist features for three months.", "for_role": "therapist", "is_active": True},
+    #         {"name": "Therapist Annual Plan", "amount_pesewas": 25000, "interval_days": 365, "description": "Full access to therapist features for one year.", "for_role": "therapist", "is_active": True},
+    #     ]
 
-        for data in plans_data:
-            plan = Plan.query.filter_by(name=data["name"]).first()
-            if plan:
-                # Update existing plan details
-                plan.amount_pesewas = data["amount_pesewas"]
-                plan.interval_days = data["interval_days"]
-                plan.description = data["description"]
-                plan.for_role = data["for_role"] # Ensure role is updated too
-                plan.is_active = data["is_active"]
-                print(f"🔁 Updated plan: {data['name']}")
-            else:
-                # Create new plan
-                new_plan = Plan(**data)
-                db.session.add(new_plan)
-                print(f"✅ Created plan: {data['name']}")
+    #     for data in plans_data:
+    #         plan = Plan.query.filter_by(name=data["name"]).first()
+    #         if plan:
+    #             # Update existing plan details
+    #             plan.amount_pesewas = data["amount_pesewas"]
+    #             plan.interval_days = data["interval_days"]
+    #             plan.description = data["description"]
+    #             plan.for_role = data["for_role"] # Ensure role is updated too
+    #             plan.is_active = data["is_active"]
+    #             print(f"🔁 Updated plan: {data['name']}")
+    #         else:
+    #             # Create new plan
+    #             new_plan = Plan(**data)
+    #             db.session.add(new_plan)
+    #             print(f"✅ Created plan: {data['name']}")
 
-        db.session.commit()
-        print("✅ Plans table synced.")
+    #     db.session.commit()
+    #     print("✅ Plans table synced.")
 
     app.run(debug=True)
