@@ -112,7 +112,8 @@ TAXONOMY = {
 }
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv("SECRET_KEY") or "Atom-De-Legend"
+# app.config['SECRET_KEY'] = os.getenv("SECRET_KEY") or "Atom-De-Legend"
+app.secret_key = os.getenv("SECRET_KEY", "Atom-De-Legend")
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(BASE_DIR, 'portal.db') + '?timeout=30'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
@@ -2007,4 +2008,4 @@ if __name__ == '__main__':
     #     db.session.commit()
     #     print("✅ Plans table synced.")
 
-    app.run(debug=True)
+    app.run(debug=False)
