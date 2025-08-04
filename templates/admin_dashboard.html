@@ -6,58 +6,57 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 
-<div class="admin-dashboard-layout"> {# Main container for dashboard layout #}
-    <h1 class="dashboard-main-title">Admin Dashboard</h1> {# New title class #}
-
-    <div class="dashboard-kpi-grid"> {# New grid/flex container for KPIs #}
-        <div class="kpi-metric-card"> {# New KPI card class #}
-            <h3 class="kpi-value">{{ total_uploads }}</h3> {# New value class #}
-            <p class="kpi-label">Total Uploads</p> {# New label class #}
+<div class="admin-dashboard-layout">
+    <h1 class="dashboard-main-title">Admin Dashboard</h1>
+    <div class="dashboard-kpi-grid">
+        <div class="kpi-metric-card">
+            <h3 class="kpi-value">{{ total_uploads }}</h3>
+            <p class="kpi-label">Total Uploads</p>
         </div>
-        <div class="kpi-metric-card"> {# New KPI card class #}
-            <h3 class="kpi-value">{{ total_views }}</h3> {# New value class #}
-            <p class="kpi-label">Total Views</p> {# New label class #}
+        <div class="kpi-metric-card">
+            <h3 class="kpi-value">{{ total_views }}</h3>
+            <p class="kpi-label">Total Views</p>
         </div>
-        <div class="kpi-metric-card"> {# New KPI card class #}
-            <h3 class="kpi-value">{{ total_clients }}</h3> {# New value class #}
-            <p class="kpi-label">Total Clients</p> {# New label class #}
+        <div class="kpi-metric-card">
+            <h3 class="kpi-value">{{ total_clients }}</h3>
+            <p class="kpi-label">Total Clients</p>
         </div>
-        <div class="kpi-metric-card"> {# New KPI card class #}
-            <h3 class="kpi-value">{{ total_therapists }}</h3> {# New value class #}
-            <p class="kpi-label">Total Therapists</p> {# New label class #}
+        <div class="kpi-metric-card">
+            <h3 class="kpi-value">{{ total_therapists }}</h3>
+            <p class="kpi-label">Total Therapists</p>
         </div>
-        <div class="kpi-metric-card"> {# New KPI card class #}
-            <h3 class="kpi-value">{{ token }}</h3> {# New value class #}
-            <p class="kpi-label">Therapist Invite Token</p> {# New label class #}
+        <div class="kpi-metric-card">
+            <h3 class="kpi-value">{{ token }}</h3>
+            <p class="kpi-label">Therapist Invite Token</p>
         </div>
     </div>
 
     <div class="dashboard-chart-section">
         <h2 class="chart-title">Top 10 Most‑Viewed Media</h2>
-        <div class="chart-container"> {# Container for individual chart #}
+        <div class="chart-container">
             <canvas id="viewsChart" class="chart-canvas"></canvas>
         </div>
     </div>
 
     <div class="dashboard-chart-section">
         <h2 class="chart-title">Views by Target Condition</h2>
-        <div class="chart-container"> {# Container for individual chart #}
+        <div class="chart-container">
             <canvas id="conditionChart" class="chart-canvas"></canvas>
         </div>
     </div>
 
     <div class="dashboard-table-section">
         <h2 class="table-title">All Uploads</h2>
-        <div class="responsive-table-container"> {# Container for responsive table #}
-            <table class="dashboard-data-table"> {# New table class #}
+        <div class="responsive-table-container">
+            <table class="dashboard-data-table">
                 <thead>
                     <tr>
                         <th>Title</th>
                         <th>Condition</th>
                         <th>Domain</th>
-                        <th class="hide-on-mobile">Views</th> {# New class for hiding #}
-                        <th class="hide-on-mobile">Uploader</th> {# New class for hiding #}
-                        <th class="hide-on-mobile">Date</th> {# New class for hiding #}
+                        <th class="hide-on-mobile">Views</th>
+                        <th class="hide-on-mobile">Uploader</th>
+                        <th class="hide-on-mobile">Date</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
