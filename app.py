@@ -1109,9 +1109,9 @@ def edit_media(media_id):
     if request.method == 'POST':
         media.title = request.form['title']
         media.description = request.form['description']
-        media.category = request.form.get('category')
-        media.otpf_domain = request.form['otpf_domain']
-        media.for_name=request.form.get('for_name')
+        # media.category = request.form.get('category')
+        # media.otpf_domain = request.form['otpf_domain']
+        # media.for_name=request.form.get('for_name')
         media.target_condition = request.form.get('target_condition')
         db.session.commit()
         flash('Media updated successfully.', 'success') # Added category
