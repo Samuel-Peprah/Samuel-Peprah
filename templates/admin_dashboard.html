@@ -55,7 +55,7 @@
                         <th>Condition</th>
                         {# <th>Domain</th> #}
                         <th class="hide-on-mobile">Views</th>
-                        <th class="hide-on-mobile">Uploader</th>
+                        {# <th class="hide-on-mobile">Uploader</th> #}
                         <th class="hide-on-mobile">Date</th>
                         <th>Actions</th>
                     </tr>
@@ -67,7 +67,7 @@
                         <td data-label="Condition">{{ item.target_condition }}</td>
                         {# <td data-label="Domain">{{ item.otpf_domain }}</td> #}
                         <td data-label="Views" class="hide-on-mobile">{{ item.view_count }}</td>
-                        <td data-label="Uploader" class="hide-on-mobile">{{ item.uploader.username }}</td>
+                        {# <td data-label="Uploader" class="hide-on-mobile">{{ item.uploader.username }}</td> #}
                         <td data-label="Date" class="hide-on-mobile">{{ item.upload_time.strftime('%Y-%m-%d') }}</td>
                         <td data-label="Actions" class="table-actions"> {# New class for actions #}
                             <a href="{{ url_for('watch', media_id=item.id) }}" class="action-icon-btn" title="View">👁</a>
