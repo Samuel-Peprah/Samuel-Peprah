@@ -5,30 +5,31 @@
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     
     <label>Title:</label><br>
-    <input type="text" name="title" value="{{ media.title }}" required><br><br>
+    <input type="text" name="title" value="{{ media.title }}" required title="Title" placeholder="Enter title"><br><br>
 
     <label>Description:</label><br>
-    <textarea name="description" required>{{ media.description }}</textarea><br><br>
-
+    <textarea name="description" required title="Description" placeholder="Enter description">{{ media.description }}</textarea><br><br>
+    {#
     <label>Category:</label><br>
-    <input type="text" name="category" value="{{ media.category }}"><br><br>
+    <input type="text" name="category" value="{{ media.category }}" title="Category" placeholder="Enter category"><br><br>
 
     <label>OTPF Domain:</label><br>
-    <select name="otpf_domain" required>
+    <select name="otpf_domain" required title="OTPF Domain">
         {% for d in taxonomy.otpf_domains %}
         <option value="{{ d }}" {% if media.otpf_domain == d %}selected{% endif %}>{{ d }}</option>
         {% endfor %}
     </select><br><br>
 
     <label>FOR Name:</label><br>
-    <select name="for_name">
+    <select name="for_name" title="FOR Name">
         {% for f in taxonomy.for_names %}
         <option value="{{ f }}" {% if media.for_name == f %}selected{% endif %}>{{ f }}</option>
         {% endfor %}
     </select><br><br>
+    #}
 
     <label>Target Condition:</label><br>
-    <select name="target_condition">
+    <select name="target_condition" title="Target Condition">
         {% for c in taxonomy.conditions %}
         <option value="{{ c }}" {% if media.target_condition == c %}selected{% endif %}>{{ c }}</option>
         {% endfor %}

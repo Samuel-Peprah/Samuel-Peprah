@@ -2,11 +2,9 @@
 {% block content %}
 <h2>Search Results for "{{ query }}"</h2>
 
-<div class="media-grid"> {# Changed from 'grid' to 'media-grid' for consistent styling #}
+<div class="media-grid">
     {% for item in media %}
-        {# Check if the user can view the content #}
         {% if current_user.is_authenticated and (current_user.role == 'therapist' or has_active_subscription(current_user)) %}
-            {# User is a therapist OR an authenticated client with an active subscription #}
             <div class="card">
                 <a href="{{ url_for('watch', media_id=item.id) }}">
                     <img src="{{ url_for('static', filename='uploads/thumbs/' + item.thumbnail) }}" alt="{{ item.title }}">
@@ -17,16 +15,15 @@
                 </a>
             </div>
         {% else %}
-            {# Content is protected for unauthenticated users or unsubscribed clients #}
-            <div class="card paywall-blur"> {# Add paywall-blur class here #}
-                <a href="#"> {# No direct link to watch for non-subscribers here #}
+            <div class="card paywall-blur">
+                <a href="#">
                     <img src="{{ url_for('static', filename='uploads/thumbs/' + item.thumbnail) }}" alt="{{ item.title }}">
                     <div class="card-content">
                         <p class="card-title">{{ item.title }}</p>
                         <small class="card-meta">{{ item.target_condition }}</small>
                     </div>
                 </a>
-                <div class="paywall-overlay"> {# Overlay for the blur effect and message #}
+                <div class="paywall-overlay">
                     {% if current_user.is_authenticated and current_user.role == 'client' %}
                         <p>🔒 Requires subscription</p>
                         <a class="btn" href="{{ url_for('pricing') }}">See plans</a>
