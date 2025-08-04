@@ -1102,7 +1102,7 @@ def edit_media(media_id):
     media = Media.query.get_or_404(media_id)
 
     # Only allow the uploader or therapist role to edit
-    if current_user.id != media.uploader_id and current_user.role != 'therapist':
+    if current_user.id != media.uploader_id and current_user.role != 'admin':
         flash("You don't have permission to edit this media.", 'danger') # Added category
         return redirect(url_for('therapist_dashboard')) # <--- UPDATED: Redirect to therapist dashboard
 
@@ -1127,7 +1127,7 @@ def delete_media(media_id):
     media = Media.query.get_or_404(media_id)
 
     # Only uploader or therapist can delete
-    if current_user.id != media.uploader_id and current_user.role != 'therapist':
+    if current_user.id != media.uploader_id and current_user.role != 'admin':
         flash("You don't have permission to delete this media.", 'danger') # Added category
         return redirect(url_for('therapist_dashboard')) # <--- UPDATED: Redirect to therapist dashboard
 
@@ -1529,7 +1529,8 @@ def search():
         query = query.filter(
             (Media.title.ilike(f'%{q}%')) |
             (Media.description.ilike(f'%{q}%')) |
-            (Media.category.ilike(f'%{q}%'))
+            (Media.category.ilike(f'%{q}%')) |
+            (Media.target_condition.ilike(f'%{q}%'))
         )
     if condition:
         query = query.filter_by(target_condition=condition)
