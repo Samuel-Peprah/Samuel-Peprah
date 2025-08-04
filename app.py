@@ -1104,7 +1104,7 @@ def edit_media(media_id):
     # Only allow the uploader or therapist role to edit
     if current_user.id != media.uploader_id and current_user.role != 'admin':
         flash("You don't have permission to edit this media.", 'danger') # Added category
-        return redirect(url_for('therapist_dashboard')) # <--- UPDATED: Redirect to therapist dashboard
+        return redirect(url_for('admin_dashboard')) # <--- UPDATED: Redirect to therapist dashboard
 
     if request.method == 'POST':
         media.title = request.form['title']
@@ -1115,7 +1115,7 @@ def edit_media(media_id):
         media.target_condition = request.form.get('target_condition')
         db.session.commit()
         flash('Media updated successfully.', 'success') # Added category
-        return redirect(url_for('therapist_dashboard')) # <--- UPDATED: Redirect to therapist dashboard
+        return redirect(url_for('admin_dashboard')) # <--- UPDATED: Redirect to therapist dashboard
 
     return render_template('edit_media.html', media=media, taxonomy=TAXONOMY, current_year=current_utc_year)
 
@@ -1129,7 +1129,7 @@ def delete_media(media_id):
     # Only uploader or therapist can delete
     if current_user.id != media.uploader_id and current_user.role != 'admin':
         flash("You don't have permission to delete this media.", 'danger') # Added category
-        return redirect(url_for('therapist_dashboard')) # <--- UPDATED: Redirect to therapist dashboard
+        return redirect(url_for('admin_dashboard')) # <--- UPDATED: Redirect to therapist dashboard
 
     try:
         # Remove media file from disk
@@ -1155,7 +1155,7 @@ def delete_media(media_id):
     db.session.delete(media)
     db.session.commit()
     flash('Media deleted successfully.', 'success')
-    return redirect(url_for('therapist_dashboard'))
+    return redirect(url_for('admin_dashboard'))
 
 
 
