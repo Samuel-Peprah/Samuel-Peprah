@@ -74,7 +74,7 @@
                             <a href="{{ url_for('edit_media', media_id=item.id) }}" class="action-icon-btn" title="Edit">✏️</a>
                             <form action="{{ url_for('delete_media', media_id=item.id) }}" method="POST" class="inline-form" onsubmit="return confirm('Delete this media?');">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                <button type="submit" class="action-icon-btn delete-btn" title="Delete">🗑</button>
+                                <button type="submit" class="action-icon-btn" title="Delete">🗑</button>
                             </form>
                         </td>
                     </tr>
