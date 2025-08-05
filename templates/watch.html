@@ -1,126 +1,146 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} 
 
-{% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='watch.css') }}">
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+{% block content %} 
+<link rel="stylesheet" href="{{ url_for('static', filename='watch.css') }}"> 
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet"> 
 
-<div class="watch-page-container">
-    <div class="main-content-area">
-        <h1 class="media-title">{{ media.title }}</h1>
+<style>
+    /*
+     * Simple styling for the button and no-op on the paragraph.
+     * The logic is now handled directly by JavaScript.
+     */
+    .description-toggle-button {
+        background: none;
+        border: none;
+        color: #007bff;
+        cursor: pointer;
+        font-weight: 600;
+        padding: 0;
+        margin-top: 5px;
+    }
 
-        {# Content is now accessible to any logged-in user #}
-        {% if current_user.is_authenticated %}
-            <div class="media-player-wrapper">
-                {% if media.filename.lower().endswith(('png','jpg','jpeg','gif')) %}
-                    <img src="{{ url_for('static', filename='uploads/' + media.filename) }}" alt="{{ media.title }}" class="media-display-image">
-                {% else %}
-                    <div class="video-player-container">
-                        <video
-                            id="mainVideo"
-                            controls
-                            poster="{{ url_for('static', filename='uploads/' + media.thumbnail) }}"
-                            class="responsive-video">
-                            <source src="{{ url_for('stream', fname=media.filename) }}" type="video/mp4">
-                            Your browser does not support HTML5 video.
-                        </video>
-                    </div>
-                {% endif %}
-            </div>
+    .description-toggle-button:hover {
+        text-decoration: underline;
+    }
+</style>
 
-            {# Mark as Completed button - still only for clients #}
-            {% if current_user.is_authenticated and current_user.role == 'client' %}
-                <form action="{{ url_for('mark_complete', media_id=media.id) }}" method="post" class="mark-complete-form">
-                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-                    <button type="submit" class="btn-mark-complete">✅ Mark as Completed</button>
-                </form>
-            {% endif %}
+<div class="watch-page-container"> 
+    <div class="main-content-area"> 
+        <h1 class="media-title">{{ media.title }}</h1> 
 
-        {% else %}
-            {# User is not authenticated at all - show login/register prompt #}
-            <div class="paywall-content-area">
-                <div class="paywall-message-large">
-                    <p class="paywall-text-large">🔒 You must be logged in to view this media.</p>
-                    <div class="paywall-actions">
-                        <a class="btn-paywall-action" href="{{ url_for('login') }}">Log in</a>
-                        <a class="btn-paywall-action" href="{{ url_for('register') }}">Register</a>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
+        {# Content is now accessible to any logged-in user #} 
+        {% if current_user.is_authenticated %} 
+            <div class="media-player-wrapper"> 
+                {% if media.filename.lower().endswith(('png','jpg','jpeg','gif')) %} 
+                    <img src="{{ url_for('static', filename='uploads/' + media.filename) }}" alt="{{ media.title }}" class="media-display-image"> 
+                {% else %} 
+                    <div class="video-player-container"> 
+                        <video 
+                            id="mainVideo" 
+                            controls 
+                            poster="{{ url_for('static', filename='uploads/' + media.thumbnail) }}" 
+                            class="responsive-video"> 
+                            <source src="{{ url_for('stream', fname=media.filename) }}" type="video/mp4"> 
+                            Your browser does not support HTML5 video. 
+                        </video> 
+                    </div> 
+                {% endif %} 
+            </div> 
 
-        <div class="media-info-section">
-            <p class="media-description" id="desc-{{ media.id }}">
-                {{ media.description }}
-            </p>
-            <button class="description-toggle-button" data-target="desc-{{ media.id }}">
+            {# Mark as Completed button - still only for clients #} 
+            {% if current_user.is_authenticated and current_user.role == 'client' %} 
+                <form action="{{ url_for('mark_complete', media_id=media.id) }}" method="post" class="mark-complete-form"> 
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"> 
+                    <button type="submit" class="btn-mark-complete">✅ Mark as Completed</button> 
+                </form> 
+            {% endif %} 
+
+        {% else %} 
+            {# User is not authenticated at all - show login/register prompt #} 
+            <div class="paywall-content-area"> 
+                <div class="paywall-message-large"> 
+                    <p class="paywall-text-large">🔒 You must be logged in to view this media.</p> 
+                    <div class="paywall-actions"> 
+                        <a class="btn-paywall-action" href="{{ url_for('login') }}">Log in</a> 
+                        <a class="btn-paywall-action" href="{{ url_for('register') }}">Register</a> 
+                    </div> 
+                </div> 
+            </div> 
+        {% endif %} 
+
+        <div class="media-info-section"> 
+            <p class="media-description" id="desc-{{ media.id }}" data-full="{{ media.description|e }}"> 
+                {% set limit = 250 %}
+                {{ (media.description[:limit] ~ '..') if media.description|length > limit else media.description }}
+            </p> 
+            <button class="description-toggle-button" data-target="desc-{{ media.id }}" 
+                    style="display: {{ 'inline-block' if media.description|length > limit else 'none' }};"
+                    data-state="less"> 
                 See more
-            </button>
+            </button> 
 
-            <ul class="media-metadata-list">
-                <li><strong>Condition:</strong> <span>{{ media.target_condition }}</span></li>
-            </ul>
-        </div>
-    </div>
+            <ul class="media-metadata-list"> 
+                <li><strong>Condition:</strong> <span>{{ media.target_condition }}</span></li> 
+            </ul> 
+        </div> 
+    </div> 
 
-    <aside class="related-media-sidebar">
-        <h3 class="sidebar-title">Related Videos</h3>
-        <div class="related-media-list">
-            {% for item in related %}
-                <a href="{{ url_for('watch', media_id=item.id) }}" class="related-media-card">
-                    <div class="related-thumbnail-wrapper">
-                        <img src="{{ url_for('static', filename='uploads/' + item.thumbnail) }}" alt="{{ item.title }}">
-                    </div>
-                    <div class="related-content">
-                        <p class="related-title">{{ item.title }}</p>
-                        <small class="related-meta">{{ item.target_condition }}</small>
-                    </div>
-                </a>
-            {% else %}
-                <p class="no-related-message">No related videos found.</p>
-            {% endfor %}
-        </div>
-    </aside>
-</div>
+    <aside class="related-media-sidebar"> 
+        <h3 class="sidebar-title">Related Videos</h3> 
+        <div class="related-media-list"> 
+            {% for item in related %} 
+                <a href="{{ url_for('watch', media_id=item.id) }}" class="related-media-card"> 
+                    <div class="related-thumbnail-wrapper"> 
+                        <img src="{{ url_for('static', filename='uploads/thumbs/' + item.thumbnail) }}" alt="{{ item.title }}"> 
+                    </div> 
+                    <div class="related-content"> 
+                        <p class="related-title">{{ item.title }}</p> 
+                        <small class="related-meta">{{ item.target_condition }}</small> 
+                    </div> 
+                </a> 
+            {% else %} 
+                <p class="no-related-message">No related videos found.</p> 
+            {% endfor %} 
+        </div> 
+    </aside> 
+</div> 
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const video = document.getElementById("mainVideo");
-        if (video) {
-            const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+    document.addEventListener('DOMContentLoaded', () => {
+        // Find all toggle buttons on the page.
+        document.querySelectorAll('.description-toggle-button').forEach(btn => {
+            const descriptionElement = document.getElementById(btn.dataset.target);
+            if (!descriptionElement) return;
 
-            if (isMobile) {
-                video.setAttribute("playsinline", "");
-                video.setAttribute("webkit-playsinline", "");
-            }
-        }
+            const fullText = descriptionElement.dataset.full;
+            const limit = 250; // This should match the limit set in the Jinja template
+            const shortText = fullText.length > limit ? fullText.slice(0, limit) + '...' : fullText;
 
-        document.querySelectorAll(".description-toggle-button").forEach(btn => {
-            const para = document.getElementById(btn.dataset.target);
+            // Add the click event listener
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
 
-            if (!para) return;
-
-            const originalHeight = para.scrollHeight;
-            para.style.maxHeight = '3em';
-            const clampedHeight = para.scrollHeight;
-            para.style.maxHeight = '';
-
-            if (originalHeight <= clampedHeight + 5) {
-                btn.style.display = "none";
-                para.classList.remove('clamped');
-            } else {
-                para.classList.add('clamped');
-            }
-
-            btn.addEventListener("click", () => {
-                para.classList.toggle("clamped");
-                btn.textContent = para.classList.contains("clamped")
-                                    ? "See more"
-                                    : "See less";
+                const expanded = btn.dataset.state === 'more'; // Check current state
+                
+                // Toggle the text content of the description and the button
+                // The fix is here: we now check if it's "more" or "less" to determine what to show.
+                if (btn.dataset.state === 'less') {
+                    // It is currently showing "See more", so we click to expand.
+                    descriptionElement.textContent = fullText;
+                    btn.textContent = "See less";
+                    btn.dataset.state = "more";
+                } else {
+                    // It is currently showing "See less", so we click to collapse.
+                    descriptionElement.textContent = shortText;
+                    btn.textContent = "See more";
+                    btn.dataset.state = "less";
+                }
             });
         });
     });
 </script>
 {% endblock %}
+
 
 
 

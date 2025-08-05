@@ -5,23 +5,23 @@
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     
     <label>Title:</label><br>
-    <input type="text" name="title" value="{{ media.title }}" required title="Title" placeholder="Enter title"><br><br>
+    <input type="text" name="title" value="{{ media.title }}" required title="Enter the media title" placeholder="Enter the media title"><br><br>
 
     <label>Description:</label><br>
-    <textarea name="description" required title="Description" placeholder="Enter description">{{ media.description }}</textarea><br><br>
+    <textarea name="description" required title="Enter a description" placeholder="Enter a description">{{ media.description }}</textarea><br><br>
     {#
     <label>Category:</label><br>
-    <input type="text" name="category" value="{{ media.category }}" title="Category" placeholder="Enter category"><br><br>
+    <input type="text" name="category" value="{{ media.category }}" title="Enter the category" placeholder="Enter the category"><br><br>
 
     <label>OTPF Domain:</label><br>
-    <select name="otpf_domain" required title="OTPF Domain">
+    <select name="otpf_domain" required title="Select OTPF Domain">
         {% for d in taxonomy.otpf_domains %}
         <option value="{{ d }}" {% if media.otpf_domain == d %}selected{% endif %}>{{ d }}</option>
         {% endfor %}
     </select><br><br>
 
     <label>FOR Name:</label><br>
-    <select name="for_name" title="FOR Name">
+    <select name="for_name" title="Select FOR Name">
         {% for f in taxonomy.for_names %}
         <option value="{{ f }}" {% if media.for_name == f %}selected{% endif %}>{{ f }}</option>
         {% endfor %}
@@ -29,7 +29,7 @@
     #}
 
     <label>Target Condition:</label><br>
-    <select name="target_condition" title="Target Condition">
+    <select name="target_condition" title="Select Target Condition">
         {% for c in taxonomy.conditions %}
         <option value="{{ c }}" {% if media.target_condition == c %}selected{% endif %}>{{ c }}</option>
         {% endfor %}

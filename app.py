@@ -1485,7 +1485,7 @@ def upload():
             db.session.commit()
 
             flash('Media uploaded successfully.', 'success') # Added 'success' category
-            return redirect(url_for('therapist_dashboard')) # <--- UPDATED: Redirect to therapist dashboard
+            return redirect(url_for('admin_dashboard')) # <--- UPDATED: Redirect to therapist dashboard
         else:
             flash('No file selected for upload.', 'warning')
             return redirect(url_for('upload'))
@@ -2009,4 +2009,4 @@ if __name__ == '__main__':
     #     db.session.commit()
     #     print("✅ Plans table synced.")
 
-    app.run(debug=False)
+    app.run(debug=True)
