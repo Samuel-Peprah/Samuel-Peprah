@@ -2,27 +2,7 @@
 
 {% block content %} 
 <link rel="stylesheet" href="{{ url_for('static', filename='watch.css') }}"> 
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet"> 
-
-<style>
-    /*
-     * Simple styling for the button and no-op on the paragraph.
-     * The logic is now handled directly by JavaScript.
-     */
-    .description-toggle-button {
-        background: none;
-        border: none;
-        color: #007bff;
-        cursor: pointer;
-        font-weight: 600;
-        padding: 0;
-        margin-top: 5px;
-    }
-
-    .description-toggle-button:hover {
-        text-decoration: underline;
-    }
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <div class="watch-page-container"> 
     <div class="main-content-area"> 
@@ -38,6 +18,7 @@
                         <video 
                             id="mainVideo" 
                             controls 
+                            playsinline
                             poster="{{ url_for('static', filename='uploads/' + media.thumbnail) }}" 
                             class="responsive-video"> 
                             <source src="{{ url_for('stream', fname=media.filename) }}" type="video/mp4"> 
@@ -71,7 +52,7 @@
         <div class="media-info-section"> 
             <p class="media-description" id="desc-{{ media.id }}" data-full="{{ media.description|e }}"> 
                 {% set limit = 250 %}
-                {{ (media.description[:limit] ~ '..') if media.description|length > limit else media.description }}
+                {{ (media.description[:limit] ~ '...') if media.description|length > limit else media.description }}
             </p> 
             <button class="description-toggle-button" data-target="desc-{{ media.id }}" 
                     style="display: {{ 'inline-block' if media.description|length > limit else 'none' }};"
@@ -139,6 +120,26 @@
         });
     });
 </script>
+
+<style>
+    /*
+     * Simple styling for the button and no-op on the paragraph.
+     * The logic is now handled directly by JavaScript.
+     */
+    .description-toggle-button {
+        background: none;
+        border: none;
+        color: #007bff;
+        cursor: pointer;
+        font-weight: 500;
+        padding: 0;
+        margin-top: 5px;
+    }
+
+    .description-toggle-button:hover {
+        text-decoration: underline;
+    }
+</style>
 {% endblock %}
 
 
